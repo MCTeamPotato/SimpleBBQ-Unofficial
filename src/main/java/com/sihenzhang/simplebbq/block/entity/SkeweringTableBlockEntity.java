@@ -110,7 +110,7 @@ public class SkeweringTableBlockEntity extends BlockEntity {
             return false;
         }
         var recipe = optionalRecipe.get();
-        var result = recipe.assemble(container);
+        var result = recipe.assemble(container, level.registryAccess());
         var resultCount = player != null && player.isSteppingCarefully() ? Math.min(skewer.getCount(), inventory.getStackInSlot(0).getCount() / recipe.getCount()) : 1;
         result.setCount(resultCount);
         inventory.extractItem(0, recipe.getCount() * resultCount, false);

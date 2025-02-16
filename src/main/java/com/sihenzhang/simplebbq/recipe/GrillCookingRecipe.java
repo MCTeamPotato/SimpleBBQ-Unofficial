@@ -8,15 +8,15 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
+import net.minecraft.world.item.crafting.CookingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import javax.annotation.Nullable;
 
 public class GrillCookingRecipe extends AbstractCookingRecipe {
     public GrillCookingRecipe(ResourceLocation pId, String pGroup, Ingredient pIngredient, ItemStack pResult, int pCookingTime) {
-        super(SimpleBBQRegistry.GRILL_COOKING_RECIPE_TYPE.get(), pId, pGroup, pIngredient, pResult, 0.0F, pCookingTime);
+        super(SimpleBBQRegistry.GRILL_COOKING_RECIPE_TYPE.get(), pId, pGroup, CookingBookCategory.MISC, pIngredient, pResult, 0.0F, pCookingTime);
     }
 
     @Override
@@ -34,7 +34,7 @@ public class GrillCookingRecipe extends AbstractCookingRecipe {
         return SimpleBBQRegistry.GRILL_COOKING_RECIPE_SERIALIZER.get();
     }
 
-    public static class Serializer extends ForgeRegistryEntry<RecipeSerializer<?>> implements RecipeSerializer<GrillCookingRecipe> {
+    public static class Serializer implements RecipeSerializer<GrillCookingRecipe> {
         @Override
         public GrillCookingRecipe fromJson(ResourceLocation pRecipeId, JsonObject pSerializedRecipe) {
             var group = GsonHelper.getAsString(pSerializedRecipe, "group", "");

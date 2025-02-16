@@ -6,6 +6,7 @@ import com.sihenzhang.simplebbq.SimpleBBQRegistry;
 import com.sihenzhang.simplebbq.util.JsonUtils;
 import net.minecraft.Util;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -16,7 +17,6 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import javax.annotation.Nullable;
 
@@ -41,7 +41,7 @@ public class SkeweringRecipe implements Recipe<Container> {
     }
 
     @Override
-    public ItemStack assemble(Container pContainer) {
+    public ItemStack assemble(Container pContainer, RegistryAccess registryAccess) {
         return result.copy();
     }
 
@@ -60,7 +60,7 @@ public class SkeweringRecipe implements Recipe<Container> {
     }
 
     @Override
-    public ItemStack getResultItem() {
+    public ItemStack getResultItem(RegistryAccess registryAccess) {
         return result;
     }
 
@@ -89,7 +89,7 @@ public class SkeweringRecipe implements Recipe<Container> {
         return SimpleBBQRegistry.SKEWERING_RECIPE_TYPE.get();
     }
 
-    public static class Serializer extends ForgeRegistryEntry<RecipeSerializer<?>> implements RecipeSerializer<SkeweringRecipe> {
+    public static class Serializer implements RecipeSerializer<SkeweringRecipe> {
         @Override
         public SkeweringRecipe fromJson(ResourceLocation pRecipeId, JsonObject pSerializedRecipe) {
             var result = JsonUtils.getAsItemStack(pSerializedRecipe, "result");

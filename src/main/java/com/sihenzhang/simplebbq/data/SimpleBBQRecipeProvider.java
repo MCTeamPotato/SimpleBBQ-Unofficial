@@ -6,8 +6,9 @@ import com.sihenzhang.simplebbq.data.recipes.GrillCookingRecipeBuilder;
 import com.sihenzhang.simplebbq.data.recipes.SeasoningRecipeBuilder;
 import com.sihenzhang.simplebbq.data.recipes.SkeweringRecipeBuilder;
 import com.sihenzhang.simplebbq.tag.SimpleBBQItemTags;
-import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.tags.ItemTags;
@@ -20,14 +21,14 @@ import net.minecraftforge.common.Tags;
 import java.util.function.Consumer;
 
 public class SimpleBBQRecipeProvider extends RecipeProvider {
-    public SimpleBBQRecipeProvider(DataGenerator generator) {
-        super(generator);
+    public SimpleBBQRecipeProvider(PackOutput output) {
+        super(output);
     }
 
     @Override
-    protected void buildCraftingRecipes(Consumer<FinishedRecipe> pFinishedRecipeConsumer) {
+    protected void buildRecipes(Consumer<FinishedRecipe> pFinishedRecipeConsumer) {
         // crafting recipe
-        ShapedRecipeBuilder.shaped(SimpleBBQRegistry.GRILL_BLOCK.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, SimpleBBQRegistry.GRILL_BLOCK.get())
                 .define('#', Blocks.IRON_TRAPDOOR)
                 .define('X', Tags.Items.INGOTS_IRON)
                 .define('I', Tags.Items.RODS_WOODEN)
@@ -36,7 +37,7 @@ public class SimpleBBQRecipeProvider extends RecipeProvider {
                 .pattern("I I")
                 .unlockedBy("has_iron_ingot", has(Items.IRON_INGOT))
                 .save(pFinishedRecipeConsumer);
-        ShapedRecipeBuilder.shaped(SimpleBBQRegistry.SKEWERING_TABLE_BLOCK.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, SimpleBBQRegistry.SKEWERING_TABLE_BLOCK.get())
                 .define('#', ItemTags.PLANKS)
                 .define('_', Blocks.SMOOTH_STONE_SLAB)
                 .pattern("__")
@@ -118,10 +119,5 @@ public class SimpleBBQRecipeProvider extends RecipeProvider {
 
     protected static String getSimpleRecipeName(String pRecipeType, String name) {
         return SimpleBBQ.MOD_ID + ":" + pRecipeType + "/" + name;
-    }
-
-    @Override
-    public String getName() {
-        return "SimpleBBQ Recipes";
     }
 }

@@ -1,49 +1,35 @@
 package com.sihenzhang.simplebbq.data;
 
-import com.google.common.collect.ImmutableList;
-import com.mojang.datafixers.util.Pair;
 import com.sihenzhang.simplebbq.SimpleBBQRegistry;
-import net.minecraft.data.DataGenerator;
-import net.minecraft.data.loot.BlockLoot;
+import net.minecraft.data.PackOutput;
+import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.data.loot.LootTableProvider;
+import net.minecraft.data.loot.LootTableSubProvider;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.LootTables;
-import net.minecraft.world.level.storage.loot.ValidationContext;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraftforge.registries.RegistryObject;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 public class SimpleBBQLootTableProvider extends LootTableProvider {
-    public SimpleBBQLootTableProvider(DataGenerator generator) {
-        super(generator);
+    public SimpleBBQLootTableProvider(PackOutput output) {
+        super(output, Set.of(), List.of(
+            new SubProviderEntry(SimpleBBQBlockLoot::new, LootContextParamSets.BLOCK)
+        ));
     }
 
-    @Override
-    protected List<Pair<Supplier<Consumer<BiConsumer<ResourceLocation, LootTable.Builder>>>, LootContextParamSet>> getTables() {
-        return ImmutableList.of(Pair.of(SimpleBBQBlockLoot::new, LootContextParamSets.BLOCK));
-    }
+    public static class SimpleBBQBlockLoot extends BlockLootSubProvider {
+        public SimpleBBQBlockLoot() {
+            super(Set.of(), FeatureFlags.REGISTRY.allFlags());
+        }
 
-    @Override
-    protected void validate(Map<ResourceLocation, LootTable> map, ValidationContext validationTracker) {
-        map.forEach((name, table) -> LootTables.validate(validationTracker, name, table));
-    }
-
-    @Override
-    public String getName() {
-        return "SimpleBBQ LootTables";
-    }
-
-    public static class SimpleBBQBlockLoot extends BlockLoot {
         @Override
-        protected void addTables() {
+        protected void generate() {
             this.dropSelf(SimpleBBQRegistry.GRILL_BLOCK.get());
             this.dropSelf(SimpleBBQRegistry.SKEWERING_TABLE_BLOCK.get());
         }
@@ -51,6 +37,17 @@ public class SimpleBBQLootTableProvider extends LootTableProvider {
         @Override
         protected Iterable<Block> getKnownBlocks() {
             return SimpleBBQRegistry.BLOCKS.getEntries().stream().map(RegistryObject::get).toList();
+        }
+
+        @Override
+        public void generate(BiConsumer<ResourceLocation, LootTable.Builder> writer) {
+            this.generate();
+            this.getKnownBlocks().forEach(block -> {
+                var table = this.map.remove(block);
+                if (table != null) {
+                    writer.accept(block.getLootTable(), table);
+                }
+            });
         }
     }
 }

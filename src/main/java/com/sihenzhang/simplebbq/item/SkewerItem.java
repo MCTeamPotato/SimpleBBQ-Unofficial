@@ -12,7 +12,7 @@ public class SkewerItem extends Item {
     private final int duration;
 
     public SkewerItem(Builder builder) {
-        super(new Properties().tab(SimpleBBQ.TAB).food(builder.foodBuilder.build()));
+        super(new Properties().food(builder.foodBuilder.build()));
         this.duration = builder.duration;
     }
 

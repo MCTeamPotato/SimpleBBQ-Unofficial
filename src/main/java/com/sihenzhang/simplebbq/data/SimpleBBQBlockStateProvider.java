@@ -3,13 +3,13 @@ package com.sihenzhang.simplebbq.data;
 import com.sihenzhang.simplebbq.SimpleBBQ;
 import com.sihenzhang.simplebbq.SimpleBBQRegistry;
 import com.sihenzhang.simplebbq.util.RLUtils;
-import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
 import net.minecraftforge.client.model.generators.BlockStateProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
 
 public class SimpleBBQBlockStateProvider extends BlockStateProvider {
-    public SimpleBBQBlockStateProvider(DataGenerator generator, ExistingFileHelper existingFileHelper) {
-        super(generator, SimpleBBQ.MOD_ID, existingFileHelper);
+    public SimpleBBQBlockStateProvider(PackOutput output, ExistingFileHelper existingFileHelper) {
+        super(output, SimpleBBQ.MOD_ID, existingFileHelper);
     }
 
     @Override

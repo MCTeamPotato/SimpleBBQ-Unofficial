@@ -12,7 +12,7 @@ import net.minecraft.world.item.context.UseOnContext;
 
 public class GrillItem extends BlockItem {
     public GrillItem() {
-        super(SimpleBBQRegistry.GRILL_BLOCK.get(), new Item.Properties().tab(SimpleBBQ.TAB));
+        super(SimpleBBQRegistry.GRILL_BLOCK.get(), new Item.Properties());
     }
 
     @Override

@@ -1,18 +1,15 @@
 package com.sihenzhang.simplebbq.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
 import com.sihenzhang.simplebbq.block.GrillBlock;
 import com.sihenzhang.simplebbq.block.entity.GrillBlockEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.client.model.data.ModelData;
+import com.mojang.math.Axis;
 
 public class GrillRenderer implements BlockEntityRenderer<GrillBlockEntity> {
     public GrillRenderer(BlockEntityRendererProvider.Context pContext) {
@@ -29,7 +26,7 @@ public class GrillRenderer implements BlockEntityRenderer<GrillBlockEntity> {
             var itemStack = inventory.getStackInSlot(i);
             if (!itemStack.isEmpty()) {
                 var itemRenderer = mc.getItemRenderer();
-                var isBlockItem = itemRenderer.getModel(itemStack, pBlockEntity.getLevel(), null, posInt).isGui3d();
+                boolean isBlockItem = itemRenderer.getModel(itemStack, pBlockEntity.getLevel(), null, posInt).isGui3d();
                 pPoseStack.pushPose();
                 // center the item/block on the grill
                 if (isBlockItem) {
@@ -38,10 +35,10 @@ public class GrillRenderer implements BlockEntityRenderer<GrillBlockEntity> {
                     pPoseStack.translate(0.5D, 0.98285D, 0.5D);
                 }
                 // rotate the item/block to face the grill
-                pPoseStack.mulPose(Vector3f.YN.rotationDegrees(direction.toYRot()));
+                pPoseStack.mulPose(Axis.YN.rotationDegrees(direction.toYRot()));
                 // rotate the item to lay down on the grill
                 if (!isBlockItem) {
-                    pPoseStack.mulPose(Vector3f.XP.rotationDegrees(90.0F));
+                    pPoseStack.mulPose(Axis.XP.rotationDegrees(90.0F));
                 }
                 // move the item/block to the specified position
                 pPoseStack.translate(0.2D - 0.4D * i, 0.0D, 0.0D);

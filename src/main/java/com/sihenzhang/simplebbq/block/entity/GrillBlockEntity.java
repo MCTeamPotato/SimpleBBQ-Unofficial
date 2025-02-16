@@ -98,7 +98,7 @@ public class GrillBlockEntity extends BlockEntity {
                     pBlockEntity.cookingProgress[i]++;
                     if (pBlockEntity.cookingProgress[i] >= pBlockEntity.cookingTime[i]) {
                         var container = new SimpleContainer(stackInSlot);
-                        var result = pBlockEntity.getCookingRecipe(container, pLevel).map(recipe -> recipe.assemble(container)).orElse(stackInSlot);
+                        var result = pBlockEntity.getCookingRecipe(container, pLevel).map(recipe -> recipe.assemble(container, pLevel.registryAccess())).orElse(stackInSlot);
                         var seasoningTag = stackInSlot.getTagElement("Seasoning");
                         if (seasoningTag != null) {
                             seasoningTag.putBoolean("HasEffect", true);
@@ -255,7 +255,7 @@ public class GrillBlockEntity extends BlockEntity {
             return false;
         }
         var recipe = optionalRecipe.get();
-        var result = recipe.assemble(container);
+        var result = recipe.assemble(container, level.registryAccess());
         if (result.isEmpty()) {
             return false;
         }
@@ -274,7 +274,7 @@ public class GrillBlockEntity extends BlockEntity {
     }
 
     public static final class CampfireData implements INBTSerializable<CompoundTag> {
-        public ResourceLocation registryName = Blocks.AIR.getRegistryName();
+        public ResourceLocation registryName = ForgeRegistries.BLOCKS.getKey(Blocks.AIR);
         public boolean lit = false;
         public Direction facing;
 
@@ -283,7 +283,7 @@ public class GrillBlockEntity extends BlockEntity {
 
         public CampfireData(BlockState state) {
             Preconditions.checkArgument(GrillBlock.isCampfire(state), "State must be a Campfire.");
-            this.registryName = state.getBlock().getRegistryName();
+            this.registryName = ForgeRegistries.BLOCKS.getKey(state.getBlock());
             this.lit = state.getValue(BlockStateProperties.LIT);
             if (state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
                 this.facing = state.getValue(BlockStateProperties.HORIZONTAL_FACING);

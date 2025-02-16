@@ -3,7 +3,7 @@ package com.sihenzhang.simplebbq.data;
 import com.sihenzhang.simplebbq.SimpleBBQ;
 import com.sihenzhang.simplebbq.SimpleBBQRegistry;
 import com.sihenzhang.simplebbq.util.RLUtils;
-import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
@@ -14,8 +14,8 @@ import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class SimpleBBQItemModelProvider extends ItemModelProvider {
-    public SimpleBBQItemModelProvider(DataGenerator generator, ExistingFileHelper existingFileHelper) {
-        super(generator, SimpleBBQ.MOD_ID, existingFileHelper);
+    public SimpleBBQItemModelProvider(PackOutput output, ExistingFileHelper existingFileHelper) {
+        super(output, SimpleBBQ.MOD_ID, existingFileHelper);
     }
 
     @Override
@@ -58,15 +58,17 @@ public class SimpleBBQItemModelProvider extends ItemModelProvider {
     }
 
     public ItemModelBuilder simpleItem(Item item) {
-        return this.simpleItem(item, RLUtils.createRL("item/" + getItemName(item)));
+        return this.basicItem(item);
     }
 
     public ItemModelBuilder simpleItem(Item item, ResourceLocation texture) {
-        return this.item(getItemName(item), texture);
+        return this.withExistingParent(getItemName(item), "item/generated")
+                .texture("layer0", texture);
     }
 
     public ItemModelBuilder item(String name, ResourceLocation texture) {
-        return this.singleTexture(name, RLUtils.createVanillaRL("item/generated"), "layer0", texture);
+        return this.withExistingParent(name, "item/generated")
+                .texture("layer0", texture);
     }
 
     public ItemModelBuilder simpleHandheldItem(Item item) {
@@ -78,7 +80,8 @@ public class SimpleBBQItemModelProvider extends ItemModelProvider {
     }
 
     public ItemModelBuilder handheldItem(String name, ResourceLocation texture) {
-        return this.singleTexture(name, RLUtils.createVanillaRL("item/handheld"), "layer0", texture);
+        return this.withExistingParent(name, "item/handheld")
+                .texture("layer0", texture);
     }
 
     protected static String getBlockName(Block block) {
@@ -87,5 +90,10 @@ public class SimpleBBQItemModelProvider extends ItemModelProvider {
 
     protected static String getItemName(ItemLike item) {
         return ForgeRegistries.ITEMS.getKey(item.asItem()).getPath();
+    }
+
+    @Override
+    public String getName() {
+        return "SimpleBBQ Item Models";
     }
 }

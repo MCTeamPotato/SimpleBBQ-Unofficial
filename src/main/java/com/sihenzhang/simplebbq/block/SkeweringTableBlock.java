@@ -16,6 +16,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.items.wrapper.RecipeWrapper;
 
@@ -25,7 +26,11 @@ public class SkeweringTableBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
     public SkeweringTableBlock() {
-        super(Properties.of(Material.WOOD).strength(2.5F).sound(SoundType.WOOD).noOcclusion());
+        super(Properties.of()
+            .mapColor(MapColor.WOOD)
+            .strength(2.5F)
+            .sound(SoundType.WOOD)
+            .noOcclusion());
         this.registerDefaultState(stateDefinition.any().setValue(FACING, Direction.NORTH));
     }
 
