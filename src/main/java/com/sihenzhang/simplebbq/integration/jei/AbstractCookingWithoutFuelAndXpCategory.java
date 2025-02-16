@@ -3,7 +3,6 @@ package com.sihenzhang.simplebbq.integration.jei;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.sihenzhang.simplebbq.util.I18nUtils;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -14,8 +13,10 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class AbstractCookingWithoutFuelAndXpCategory<T extends AbstractCookingRecipe> implements IRecipeCategory<T> {
     private final IDrawableAnimated animatedFlame;
@@ -33,7 +34,7 @@ public abstract class AbstractCookingWithoutFuelAndXpCategory<T extends Abstract
         this.defaultCookingTime = defaultCookingTime;
         this.cachedArrows = CacheBuilder.newBuilder().maximumSize(25).build(new CacheLoader<>() {
             @Override
-            public IDrawableAnimated load(Integer cookingTime) {
+            public IDrawableAnimated load(@NotNull Integer cookingTime) {
                 return guiHelper.drawableBuilder(ModIntegrationJei.RECIPE_GUI_VANILLA, 82, 128, 24, 17).buildAnimated(cookingTime, IDrawableAnimated.StartDirection.LEFT, false);
             }
         });
@@ -45,8 +46,13 @@ public abstract class AbstractCookingWithoutFuelAndXpCategory<T extends Abstract
     }
 
     @Override
-    public IDrawable getBackground() {
-        return background;
+    public int getWidth() {
+        return background.getWidth();
+    }
+
+    @Override
+    public int getHeight() {
+        return background.getHeight();
     }
 
     @Override
@@ -57,18 +63,19 @@ public abstract class AbstractCookingWithoutFuelAndXpCategory<T extends Abstract
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, T recipe, IFocusGroup focuses) {
         builder.addSlot(RecipeIngredientRole.INPUT, 1, 1).addIngredients(recipe.getIngredients().get(0));
-        builder.addSlot(RecipeIngredientRole.OUTPUT, 61, 9).addItemStack(recipe.getResultItem());
+        builder.addSlot(RecipeIngredientRole.OUTPUT, 61, 9).addItemStack(recipe.getResultItem(Minecraft.getInstance().level.registryAccess()));
     }
 
     @Override
-    public void draw(T recipe, IRecipeSlotsView recipeSlotsView, PoseStack stack, double mouseX, double mouseY) {
-        animatedFlame.draw(stack, 1, 20);
+    public void draw(T recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
+        background.draw(guiGraphics);
+        animatedFlame.draw(guiGraphics, 1, 20);
 
         var cookingTime = recipe.getCookingTime();
 
-        this.getArrow(cookingTime).draw(stack, 24, 8);
+        this.getArrow(cookingTime).draw(guiGraphics, 24, 8);
 
-        drawCookingTime(cookingTime, stack);
+        drawCookingTime(cookingTime, guiGraphics);
     }
 
     protected IDrawableAnimated getArrow(int cookingTime) {
@@ -78,13 +85,13 @@ public abstract class AbstractCookingWithoutFuelAndXpCategory<T extends Abstract
         return this.cachedArrows.getUnchecked(cookingTime);
     }
 
-    protected void drawCookingTime(int cookingTime, PoseStack stack) {
+    protected void drawCookingTime(int cookingTime, GuiGraphics guiGraphics) {
         if (cookingTime > 0) {
             var cookingTimeSeconds = cookingTime / 20;
             var timeText = I18nUtils.createComponent("gui", ModIntegrationJei.MOD_ID, "category.smelting.time.seconds", cookingTimeSeconds);
             var fontRenderer = Minecraft.getInstance().font;
             var stringWidth = fontRenderer.width(timeText);
-            fontRenderer.draw(stack, timeText, background.getWidth() - stringWidth, 35, 0xFF808080);
+            guiGraphics.drawString(fontRenderer, timeText, background.getWidth() - stringWidth, 35, 0xFF808080, false);
         }
     }
 }
