@@ -5,6 +5,7 @@ import com.sihenzhang.simplebbq.SimpleBBQ;
 import com.sihenzhang.simplebbq.util.RLUtils;
 import net.minecraft.Util;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.levelgen.structure.pools.SinglePoolElement;
@@ -18,13 +19,13 @@ import java.util.ArrayList;
 
 @Mod.EventBusSubscriber(modid = SimpleBBQ.MOD_ID)
 public class VillageStructures {
-    private static final ResourceKey<StructureProcessorList> EMPTY_PROCESSOR_LIST_KEY = ResourceKey.create(Registry.PROCESSOR_LIST_REGISTRY, RLUtils.createVanillaRL("empty"));
+    private static final ResourceKey<StructureProcessorList> EMPTY_PROCESSOR_LIST_KEY = ResourceKey.create(Registries.PROCESSOR_LIST, RLUtils.createVanillaRL("empty"));
 
     @SubscribeEvent
     public static void addNewVillageBuilding(final ServerAboutToStartEvent event) {
         var registryHolder = event.getServer().registryAccess();
-        var templatePools = registryHolder.registryOrThrow(Registry.TEMPLATE_POOL_REGISTRY);
-        var processorLists = registryHolder.registryOrThrow(Registry.PROCESSOR_LIST_REGISTRY);
+        var templatePools = registryHolder.registryOrThrow(Registries.TEMPLATE_POOL);
+        var processorLists = registryHolder.registryOrThrow(Registries.PROCESSOR_LIST);
 
         var plainsPoolRL = RLUtils.createVanillaRL("village/plains/houses");
         var savannaPoolRL = RLUtils.createVanillaRL("village/savanna/houses");

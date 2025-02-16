@@ -10,7 +10,7 @@ import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.client.event.ParticleFactoryRegisterEvent;
+import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -30,7 +30,7 @@ public class ClientRegistry {
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public static void onParticleRegister(final ParticleFactoryRegisterEvent event) {
+    public static void onParticleRegister(final RegisterParticleProvidersEvent event) {
         Minecraft.getInstance().particleEngine.register(SimpleBBQRegistry.CAMPFIRE_SMOKE_UNDER_GRILL.get(), CampfireSmokeUnderGrillParticle.Provider::new);
     }
 }

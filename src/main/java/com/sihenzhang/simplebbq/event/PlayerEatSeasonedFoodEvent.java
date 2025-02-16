@@ -32,9 +32,9 @@ public class PlayerEatSeasonedFoodEvent {
         if (seasoningTag != null && seasoningTag.getBoolean("HasEffect") && seasoningTag.contains("SeasoningList", Tag.TAG_LIST)) {
             var seasoningList = seasoningTag.getList("SeasoningList", Tag.TAG_STRING);
             if (hasSeasoning(seasoningList, "honey")) {
-                event.getEntityLiving().heal(2.0F);
+                event.getEntity().heal(2.0F);
             }
-            if (event.getEntityLiving() instanceof Player player && !(player instanceof FakePlayer)) {
+            if (event.getEntity() instanceof Player player && !(player instanceof FakePlayer)) {
                 var foodProperties = stack.getFoodProperties(player);
                 if (foodProperties != null) {
                     var foodData = player.getFoodData();

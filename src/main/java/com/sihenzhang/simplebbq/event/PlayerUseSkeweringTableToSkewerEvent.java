@@ -13,11 +13,11 @@ import net.minecraftforge.fml.common.Mod;
 public class PlayerUseSkeweringTableToSkewerEvent {
     @SubscribeEvent
     public static void onBlockRightClick(final PlayerInteractEvent.RightClickBlock event) {
-        var level = event.getWorld();
+        var level = event.getLevel();
         var pos = event.getPos();
         if (level.getBlockState(pos).getBlock() instanceof SkeweringTableBlock) {
             if (level.getBlockEntity(pos) instanceof SkeweringTableBlockEntity skeweringTableBlockEntity) {
-                var player = event.getPlayer();
+                var player = event.getEntity();
                 var stackInHand = event.getItemStack();
                 if (stackInHand.is(SimpleBBQItemTags.SKEWER)) {
                     event.setCanceled(true);

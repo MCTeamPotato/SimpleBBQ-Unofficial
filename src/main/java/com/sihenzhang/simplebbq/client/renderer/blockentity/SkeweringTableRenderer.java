@@ -1,7 +1,6 @@
 package com.sihenzhang.simplebbq.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
 import com.sihenzhang.simplebbq.block.SkeweringTableBlock;
 import com.sihenzhang.simplebbq.block.entity.SkeweringTableBlockEntity;
 import net.minecraft.client.Minecraft;
@@ -10,7 +9,10 @@ import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import org.joml.Vector3f;
 
 import java.util.Random;
 
@@ -28,7 +30,7 @@ public class SkeweringTableRenderer implements BlockEntityRenderer<SkeweringTabl
             var itemRenderer = Minecraft.getInstance().getItemRenderer();
             var count = getRenderCount(itemStack);
             var isBlockItem = itemRenderer.getModel(itemStack, pBlockEntity.getLevel(), null, posInt).isGui3d();
-            var random = new Random(posInt);
+            var random = RandomSource.create(posInt);
             pPoseStack.pushPose();
             // center the item/block on the table
             if (isBlockItem) {
@@ -58,7 +60,7 @@ public class SkeweringTableRenderer implements BlockEntityRenderer<SkeweringTabl
                     pPoseStack.mulPose(Vector3f.ZP.rotationDegrees(i > 0 ? Mth.nextFloat(random, -15.0F, 15.0F) : 0.0F));
                 }
                 // render the item/block on the table
-                itemRenderer.renderStatic(itemStack, ItemTransforms.TransformType.FIXED, pPackedLight, pPackedOverlay, pPoseStack, pBufferSource, posInt);
+                itemRenderer.renderStatic(itemStack, ItemDisplayContext.FIXED, pPackedLight, pPackedOverlay, pPoseStack, pBufferSource, pBlockEntity.getLevel(), posInt);
                 pPoseStack.popPose();
             }
             pPoseStack.popPose();

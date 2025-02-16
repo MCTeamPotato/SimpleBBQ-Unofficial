@@ -4,8 +4,8 @@ import com.sihenzhang.simplebbq.SimpleBBQ;
 import com.sihenzhang.simplebbq.util.I18nUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -15,7 +15,7 @@ import java.util.function.Supplier;
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = SimpleBBQ.MOD_ID)
 public class SeasoningTooltip {
-    private static final Supplier<MutableComponent> SPACE = () -> new TextComponent("  ");
+    private static final Supplier<MutableComponent> SPACE = () -> Component.literal("  ");
 
     @SubscribeEvent
     public static void onTooltip(final ItemTooltipEvent event) {

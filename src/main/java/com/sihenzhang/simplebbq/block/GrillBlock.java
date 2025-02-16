@@ -14,10 +14,13 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageSources;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -225,7 +228,7 @@ public class GrillBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                     damage = (float) campfireBlock.fireDamage;
                 }
             }
-            pEntity.hurt(DamageSource.HOT_FLOOR, damage);
+            pEntity.hurt(DamageSources.hotFloor, damage);
         }
         super.stepOn(pLevel, pPos, pState, pEntity);
     }
@@ -350,7 +353,7 @@ public class GrillBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
     }
 
     private static HitResult getPlayerHitResult(Player pPlayer) {
-        var reachDistanceAttribute = pPlayer.getAttribute(ForgeMod.REACH_DISTANCE.get());
+        var reachDistanceAttribute = pPlayer.getAttribute(ForgeMod.ENTITY_REACH.get());
         var reachDistance = reachDistanceAttribute != null ? reachDistanceAttribute.getValue() : 5.0D;
         if (pPlayer.isCreative()) {
             reachDistance -= 0.5D;
@@ -452,7 +455,7 @@ public class GrillBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
     }
 
     @Override
-    public void animateTick(BlockState pState, Level pLevel, BlockPos pPos, Random pRandom) {
+    public void animateTick(BlockState pState, Level pLevel, BlockPos pPos, RandomSource pRandom) {
         if (pLevel.getBlockEntity(pPos) instanceof GrillBlockEntity grillBlockEntity) {
             var campfireState = grillBlockEntity.getCampfireData().toBlockState();
             if (isCampfire(campfireState)) {

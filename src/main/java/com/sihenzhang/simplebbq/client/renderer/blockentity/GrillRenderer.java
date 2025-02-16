@@ -6,10 +6,13 @@ import com.sihenzhang.simplebbq.block.GrillBlock;
 import com.sihenzhang.simplebbq.block.entity.GrillBlockEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraftforge.client.model.data.EmptyModelData;
+import net.minecraftforge.client.model.data.ModelData;
 
 public class GrillRenderer implements BlockEntityRenderer<GrillBlockEntity> {
     public GrillRenderer(BlockEntityRendererProvider.Context pContext) {
@@ -49,7 +52,7 @@ public class GrillRenderer implements BlockEntityRenderer<GrillBlockEntity> {
                     pPoseStack.scale(0.45F, 0.45F, 0.45F);
                 }
                 // render the item/block on the grill
-                itemRenderer.renderStatic(itemStack, ItemTransforms.TransformType.FIXED, pPackedLight, pPackedOverlay, pPoseStack, pBufferSource, posInt + i);
+                itemRenderer.renderStatic(itemStack, ItemDisplayContext.FIXED, pPackedLight, pPackedOverlay, pPoseStack, pBufferSource, pBlockEntity.getLevel(), posInt + i);
                 pPoseStack.popPose();
             }
         }
@@ -57,7 +60,8 @@ public class GrillRenderer implements BlockEntityRenderer<GrillBlockEntity> {
         // render campfire block
         var blockState = pBlockEntity.getCampfireData().toBlockState();
         pPoseStack.pushPose();
-        mc.getBlockRenderer().renderSingleBlock(blockState, pPoseStack, pBufferSource, pPackedLight, pPackedOverlay, EmptyModelData.INSTANCE);
+        // TODO: RenderType不确定
+        mc.getBlockRenderer().renderSingleBlock(blockState, pPoseStack, pBufferSource, pPackedLight, pPackedOverlay, ModelData.EMPTY, null);
         pPoseStack.popPose();
     }
 }
