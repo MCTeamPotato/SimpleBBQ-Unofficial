@@ -18,18 +18,16 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class AbstractCookingWithoutFuelAndXpCategory<T extends AbstractCookingRecipe> implements IRecipeCategory<T> {
+public abstract class AbstractCookingWithoutFuelAndXpCategory<T extends AbstractCookingRecipe> extends BaseCategory<T> {
     private final IDrawableAnimated animatedFlame;
-    private final IDrawable background;
-    private final IDrawable icon;
     private final Component title;
     private final int defaultCookingTime;
     private final LoadingCache<Integer, IDrawableAnimated> cachedArrows;
 
     public AbstractCookingWithoutFuelAndXpCategory(IGuiHelper guiHelper, IDrawable icon, String categoryKey, int defaultCookingTime) {
+        super(guiHelper.drawableBuilder(ModIntegrationJei.RECIPE_GUI_VANILLA, 0, 186, 82, 34).addPadding(0, 10, 0, 0).build(),icon);
         this.animatedFlame = guiHelper.createAnimatedDrawable(guiHelper.createDrawable(ModIntegrationJei.RECIPE_GUI_VANILLA, 82, 114, 14, 14), 300, IDrawableAnimated.StartDirection.TOP, true);
-        this.background = guiHelper.drawableBuilder(ModIntegrationJei.RECIPE_GUI_VANILLA, 0, 186, 82, 34).addPadding(0, 10, 0, 0).build();
-        this.icon = icon;
+
         this.title = I18nUtils.createIntegrationComponent(ModIntegrationJei.MOD_ID, categoryKey);
         this.defaultCookingTime = defaultCookingTime;
         this.cachedArrows = CacheBuilder.newBuilder().maximumSize(25).build(new CacheLoader<>() {
@@ -68,7 +66,7 @@ public abstract class AbstractCookingWithoutFuelAndXpCategory<T extends Abstract
 
     @Override
     public void draw(T recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
-        background.draw(guiGraphics);
+        super.draw(recipe, recipeSlotsView, guiGraphics, mouseX, mouseY);
         animatedFlame.draw(guiGraphics, 1, 20);
 
         var cookingTime = recipe.getCookingTime();

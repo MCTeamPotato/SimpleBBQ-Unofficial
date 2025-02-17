@@ -1,5 +1,6 @@
 package com.sihenzhang.simplebbq.integration.jei;
 
+import com.sihenzhang.simplebbq.SimpleBBQ;
 import com.sihenzhang.simplebbq.SimpleBBQRegistry;
 import com.sihenzhang.simplebbq.util.I18nUtils;
 import com.sihenzhang.simplebbq.util.RLUtils;
@@ -18,7 +19,7 @@ import java.util.List;
 @JeiPlugin
 public class ModIntegrationJei implements IModPlugin {
     public static final String MOD_ID = "jei";
-    public static final ResourceLocation RECIPE_GUI_VANILLA = RLUtils.createRL(MOD_ID, "textures/gui/gui_vanilla.png");
+    public static final ResourceLocation RECIPE_GUI_VANILLA = RLUtils.createRL(SimpleBBQ.MOD_ID, "textures/gui/gui_vanilla.png");
 
     @Override
     public ResourceLocation getPluginUid() {

@@ -18,14 +18,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Ingredient;
 
-public class SkeweringCategory implements IRecipeCategory<SkeweringRecipe> {
+public class SkeweringCategory extends BaseCategory<SkeweringRecipe> {
     public static final RecipeType<SkeweringRecipe> RECIPE_TYPE = RecipeType.create(SimpleBBQ.MOD_ID, "skewering", SkeweringRecipe.class);
-    private final IDrawable background;
-    private final IDrawable icon;
+
 
     public SkeweringCategory(IGuiHelper guiHelper) {
-        this.background = guiHelper.drawableBuilder(ModIntegrationJei.RECIPE_GUI_VANILLA, 0, 168, 125, 18).build();
-        this.icon = guiHelper.createDrawableIngredient(VanillaTypes.ITEM_STACK, SimpleBBQRegistry.SKEWERING_TABLE_BLOCK_ITEM.get().getDefaultInstance());
+        super(guiHelper.drawableBuilder(ModIntegrationJei.RECIPE_GUI_VANILLA, 0, 168, 125, 18).build()
+        ,guiHelper.createDrawableIngredient(VanillaTypes.ITEM_STACK, SimpleBBQRegistry.SKEWERING_TABLE_BLOCK_ITEM.get().getDefaultInstance()));
     }
 
 //    @Override
@@ -50,10 +49,10 @@ public class SkeweringCategory implements IRecipeCategory<SkeweringRecipe> {
         return I18nUtils.createIntegrationComponent(ModIntegrationJei.MOD_ID, "category.skewering");
     }
 
-    @Override
-    public IDrawable getBackground() {
-        return background;
-    }
+//    @Override
+//    public IDrawable getBackground() {
+//        return background;
+//    }
 
     @Override
     public IDrawable getIcon() {

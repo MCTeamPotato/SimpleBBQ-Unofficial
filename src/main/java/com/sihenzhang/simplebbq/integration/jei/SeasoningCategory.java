@@ -10,11 +10,13 @@ import com.sihenzhang.simplebbq.util.I18nUtils;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
+import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -27,15 +29,14 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
-public class SeasoningCategory implements IRecipeCategory<SeasoningRecipe> {
+public class SeasoningCategory extends BaseCategory<SeasoningRecipe> {
     public static final RecipeType<SeasoningRecipe> RECIPE_TYPE = RecipeType.create(SimpleBBQ.MOD_ID, "seasoning", SeasoningRecipe.class);
-    private final IDrawable background;
-    private final IDrawable icon;
     private final LoadingCache<SeasoningRecipe, List<ItemStack>> cachedResultItems;
 
     public SeasoningCategory(IGuiHelper guiHelper) {
-        this.background = guiHelper.drawableBuilder(ModIntegrationJei.RECIPE_GUI_VANILLA, 0, 168, 125, 18).build();
-        this.icon = new DrawableDoubleItemStack(SimpleBBQRegistry.GRILL_BLOCK_ITEM.get().getDefaultInstance(), SimpleBBQRegistry.CHILI_POWDER.get().getDefaultInstance());
+        super(guiHelper.drawableBuilder(ModIntegrationJei.RECIPE_GUI_VANILLA, 0, 168, 125, 18).build()
+        ,new DrawableDoubleItemStack(SimpleBBQRegistry.GRILL_BLOCK_ITEM.get().getDefaultInstance(), SimpleBBQRegistry.CHILI_POWDER.get().getDefaultInstance()));
+
         this.cachedResultItems = CacheBuilder.newBuilder().maximumSize(25).build(new CacheLoader<>() {
             @Override
             public List<ItemStack> load(SeasoningRecipe key) {
@@ -75,10 +76,10 @@ public class SeasoningCategory implements IRecipeCategory<SeasoningRecipe> {
         return I18nUtils.createIntegrationComponent(ModIntegrationJei.MOD_ID, "category.seasoning");
     }
 
-    @Override
-    public IDrawable getBackground() {
-        return background;
-    }
+//    @Override
+//    public IDrawable getBackground() {
+//        return background;
+//    }
 
     @Override
     public IDrawable getIcon() {
