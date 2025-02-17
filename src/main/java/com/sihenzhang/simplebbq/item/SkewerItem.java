@@ -2,6 +2,7 @@ package com.sihenzhang.simplebbq.item;
 
 import com.sihenzhang.simplebbq.SimpleBBQ;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -37,7 +38,7 @@ public class SkewerItem extends Item {
     }
 
     @Override
-    public int getUseDuration(ItemStack pStack) {
+    public int getUseDuration(ItemStack stack, LivingEntity entity) {
         return duration;
     }
 
@@ -51,19 +52,21 @@ public class SkewerItem extends Item {
         public Builder(Item baseItem, int nutritionModifier, float saturationModifier) {
             var baseFoodProperties = baseItem.getFoodProperties(baseItem.getDefaultInstance(), null);
             if (baseFoodProperties != null) {
-                this.foodBuilder = this.foodBuilder.nutrition(baseFoodProperties.getNutrition() + nutritionModifier).saturationMod(baseFoodProperties.getSaturationModifier() + saturationModifier);
-                if (baseFoodProperties.isMeat()) {
-                    this.foodBuilder = this.foodBuilder.meat();
-                }
+                this.foodBuilder = this.foodBuilder.nutrition(baseFoodProperties.nutrition() + nutritionModifier).saturationModifier(baseFoodProperties.saturation() + saturationModifier);
+                //TODO: 实现注释掉的功能
+
+//                if (baseFoodProperties.isMeat()) {
+//                    this.foodBuilder = this.foodBuilder.meat();
+//                }
                 if (baseFoodProperties.canAlwaysEat()) {
-                    this.foodBuilder = this.foodBuilder.alwaysEat();
+                    this.foodBuilder = this.foodBuilder.alwaysEdible();
                 }
-                if (baseFoodProperties.isFastFood()) {
-                    this.duration = 16;
-                }
-                if (!baseFoodProperties.getEffects().isEmpty()) {
-                    baseFoodProperties.getEffects().forEach(e -> this.foodBuilder = this.foodBuilder.effect(e::getFirst, e.getSecond()));
-                }
+//                if (baseFoodProperties.isFastFood()) {
+//                    this.duration = 16;
+//                }
+//                if (!baseFoodProperties.getEffects().isEmpty()) {
+//                    baseFoodProperties.getEffects().forEach(e -> this.foodBuilder = this.foodBuilder.effect(e::getFirst, e.getSecond()));
+//                }
             }
         }
 
@@ -73,17 +76,17 @@ public class SkewerItem extends Item {
         }
 
         public Builder saturationMod(float saturationModifier) {
-            foodBuilder = foodBuilder.saturationMod(saturationModifier);
+            foodBuilder = foodBuilder.saturationModifier(saturationModifier);
             return this;
         }
 
-        public Builder meat() {
-            foodBuilder = foodBuilder.meat();
-            return this;
-        }
+//        public Builder meat() {
+//            foodBuilder = foodBuilder.meat();
+//            return this;
+//        }
 
         public Builder alwaysEat() {
-            foodBuilder = foodBuilder.alwaysEat();
+            foodBuilder = foodBuilder.alwaysEdible();
             return this;
         }
 

@@ -8,8 +8,8 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraftforge.client.model.data.ModelData;
 import com.mojang.math.Axis;
+import net.neoforged.neoforge.client.model.data.ModelData;
 
 public class GrillRenderer implements BlockEntityRenderer<GrillBlockEntity> {
     public GrillRenderer(BlockEntityRendererProvider.Context pContext) {

@@ -1,16 +1,14 @@
 package com.sihenzhang.simplebbq.recipe;
 
 import com.google.common.base.Preconditions;
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.sihenzhang.simplebbq.SimpleBBQRegistry;
-import com.sihenzhang.simplebbq.util.JsonUtils;
-import net.minecraft.Util;
-import net.minecraft.core.NonNullList;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
-import net.minecraft.world.Container;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
@@ -18,30 +16,26 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.Nullable;
-
-public class SkeweringRecipe implements Recipe<Container> {
-    private final ResourceLocation id;
+public class SkeweringRecipe implements Recipe<SkeweringInput> {
     private final Ingredient ingredient;
     private final int count;
     private final ItemStack result;
 
-    public SkeweringRecipe(ResourceLocation id, Ingredient ingredient, int count, ItemStack result) {
+    public SkeweringRecipe(Ingredient ingredient, int count, ItemStack result) {
         Preconditions.checkArgument(count >= 1 && count <= 64, "Count must be between 1 and 64");
-        this.id = id;
         this.ingredient = ingredient;
         this.count = count;
         this.result = result;
     }
-
+    
     @Override
-    public boolean matches(Container pContainer, Level pLevel) {
-        var stack = pContainer.getItem(0);
+    public boolean matches(SkeweringInput skeweringInput, Level level) {
+        var stack = skeweringInput.getItem(0);
         return ingredient.test(stack) && stack.getCount() >= count;
     }
 
     @Override
-    public ItemStack assemble(Container pContainer, RegistryAccess registryAccess) {
+    public ItemStack assemble(SkeweringInput skeweringInput, HolderLookup.Provider provider) {
         return result.copy();
     }
 
@@ -51,17 +45,20 @@ public class SkeweringRecipe implements Recipe<Container> {
     }
 
     @Override
-    public NonNullList<Ingredient> getIngredients() {
-        return Util.make(NonNullList.create(), list -> list.add(ingredient));
+    public ItemStack getResultItem(HolderLookup.Provider provider) {
+        return result;
+    }
+
+    public Ingredient getIngredient() {
+        return ingredient;
+    }
+
+    public ItemStack getResult() {
+        return result;
     }
 
     public int getCount() {
         return count;
-    }
-
-    @Override
-    public ItemStack getResultItem(RegistryAccess registryAccess) {
-        return result;
     }
 
     @Override
@@ -75,11 +72,6 @@ public class SkeweringRecipe implements Recipe<Container> {
     }
 
     @Override
-    public ResourceLocation getId() {
-        return id;
-    }
-
-    @Override
     public RecipeSerializer<?> getSerializer() {
         return SimpleBBQRegistry.SKEWERING_RECIPE_SERIALIZER.get();
     }
@@ -90,35 +82,28 @@ public class SkeweringRecipe implements Recipe<Container> {
     }
 
     public static class Serializer implements RecipeSerializer<SkeweringRecipe> {
-        @Override
-        public SkeweringRecipe fromJson(ResourceLocation pRecipeId, JsonObject pSerializedRecipe) {
-            var result = JsonUtils.getAsItemStack(pSerializedRecipe, "result");
-            if (GsonHelper.isObjectNode(pSerializedRecipe, "ingredient")) {
-                var ingredientObject = GsonHelper.getAsJsonObject(pSerializedRecipe, "ingredient");
-                if (ingredientObject.has("ingredient")) {
-                    var ingredient = JsonUtils.getAsIngredient(ingredientObject, "ingredient");
-                    var count = GsonHelper.getAsInt(ingredientObject, "count", 1);
-                    return new SkeweringRecipe(pRecipeId, ingredient, count, result);
-                }
-            }
-            var ingredient = JsonUtils.getAsIngredient(pSerializedRecipe, "ingredient");
-            return new SkeweringRecipe(pRecipeId, ingredient, 1, result);
-        }
 
-        @Nullable
+        public static final MapCodec<SkeweringRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+                Ingredient.CODEC.fieldOf("ingredient").forGetter(SkeweringRecipe::getIngredient),
+                Codec.INT.fieldOf("count").forGetter(SkeweringRecipe::getCount),
+                ItemStack.CODEC.fieldOf("result").forGetter(SkeweringRecipe::getResult)
+        ).apply(instance, SkeweringRecipe::new));
+
+        public static final StreamCodec<RegistryFriendlyByteBuf, SkeweringRecipe> STREAM_CODEC =
+                StreamCodec.composite(
+                        Ingredient.CONTENTS_STREAM_CODEC,SkeweringRecipe::getIngredient,
+                        ByteBufCodecs.INT, SkeweringRecipe::getCount,
+                        ItemStack.STREAM_CODEC, SkeweringRecipe::getResult,
+                        SkeweringRecipe::new
+                );
         @Override
-        public SkeweringRecipe fromNetwork(ResourceLocation pRecipeId, FriendlyByteBuf pBuffer) {
-            var ingredient = Ingredient.fromNetwork(pBuffer);
-            var count = pBuffer.readVarInt();
-            var result = pBuffer.readItem();
-            return new SkeweringRecipe(pRecipeId, ingredient, count, result);
+        public MapCodec<SkeweringRecipe> codec() {
+            return CODEC;
         }
 
         @Override
-        public void toNetwork(FriendlyByteBuf pBuffer, SkeweringRecipe pRecipe) {
-            pRecipe.ingredient.toNetwork(pBuffer);
-            pBuffer.writeVarInt(pRecipe.count);
-            pBuffer.writeItem(pRecipe.result);
+        public StreamCodec<RegistryFriendlyByteBuf, SkeweringRecipe> streamCodec() {
+            return STREAM_CODEC;
         }
     }
 }

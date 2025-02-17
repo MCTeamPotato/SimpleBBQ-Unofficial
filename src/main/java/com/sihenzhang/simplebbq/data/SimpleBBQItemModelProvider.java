@@ -3,15 +3,15 @@ package com.sihenzhang.simplebbq.data;
 import com.sihenzhang.simplebbq.SimpleBBQ;
 import com.sihenzhang.simplebbq.SimpleBBQRegistry;
 import com.sihenzhang.simplebbq.util.RLUtils;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.client.model.generators.ItemModelBuilder;
-import net.minecraftforge.client.model.generators.ItemModelProvider;
-import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
+import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
 public class SimpleBBQItemModelProvider extends ItemModelProvider {
     public SimpleBBQItemModelProvider(PackOutput output, ExistingFileHelper existingFileHelper) {
@@ -85,11 +85,11 @@ public class SimpleBBQItemModelProvider extends ItemModelProvider {
     }
 
     protected static String getBlockName(Block block) {
-        return ForgeRegistries.BLOCKS.getKey(block).getPath();
+        return BuiltInRegistries.BLOCK.getKey(block).getPath();
     }
 
     protected static String getItemName(ItemLike item) {
-        return ForgeRegistries.ITEMS.getKey(item.asItem()).getPath();
+        return BuiltInRegistries.ITEM.getKey(item.asItem()).getPath();
     }
 
     @Override

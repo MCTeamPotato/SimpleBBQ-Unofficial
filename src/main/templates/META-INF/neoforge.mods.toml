@@ -1,0 +1,26 @@
+modLoader="javafml" 
+loaderVersion="[4,)"
+license="MIT" 
+issueTrackerURL="https://github.com/SihenZhang/SimpleBBQ/issues" 
+[[mods]] 
+modId="simplebbq"
+version = "${mod_version}"
+displayName="Simple BBQ Unofficial" 
+logoFile="banner.png" 
+authors="Si_hen, VVVHY, idyllicbean, SeraphJack, TeamPotato" 
+description='''
+Relaxing and Enjoyable Barbecue.
+'''
+
+[[dependencies.simplebbq]] 
+modId = "neoforge" 
+type = "required" 
+versionRange = "${neo_version_range}" 
+ordering = "NONE"
+side = "BOTH"
+[[dependencies.simplebbq]]
+modId = "minecraft"
+type = "required"
+versionRange = "${minecraft_version_range}"
+ordering = "NONE"
+side = "BOTH"

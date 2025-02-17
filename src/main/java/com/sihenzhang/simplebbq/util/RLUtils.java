@@ -8,18 +8,18 @@ public final class RLUtils {
     }
 
     public static ResourceLocation createRL(String path) {
-        return new ResourceLocation(SimpleBBQ.MOD_ID, path);
+        return ResourceLocation.fromNamespaceAndPath(SimpleBBQ.MOD_ID, path);
     }
 
     public static ResourceLocation createRL(String namespace, String path) {
-        return new ResourceLocation(namespace, path);
+        return ResourceLocation.fromNamespaceAndPath(namespace, path);
     }
 
     public static ResourceLocation createForgeRL(String path) {
-        return new ResourceLocation("forge", path);
+        return ResourceLocation.fromNamespaceAndPath("forge", path);
     }
 
     public static ResourceLocation createVanillaRL(String path) {
-        return new ResourceLocation("minecraft", path);
+        return ResourceLocation.withDefaultNamespace(path);
     }
 }

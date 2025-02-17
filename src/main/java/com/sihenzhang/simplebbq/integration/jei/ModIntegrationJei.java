@@ -2,6 +2,9 @@ package com.sihenzhang.simplebbq.integration.jei;
 
 import com.sihenzhang.simplebbq.SimpleBBQ;
 import com.sihenzhang.simplebbq.SimpleBBQRegistry;
+import com.sihenzhang.simplebbq.recipe.GrillCookingRecipe;
+import com.sihenzhang.simplebbq.recipe.SeasoningRecipe;
+import com.sihenzhang.simplebbq.recipe.SkeweringRecipe;
 import com.sihenzhang.simplebbq.util.I18nUtils;
 import com.sihenzhang.simplebbq.util.RLUtils;
 import mezz.jei.api.IModPlugin;
@@ -12,9 +15,12 @@ import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.crafting.CampfireCookingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @JeiPlugin
 public class ModIntegrationJei implements IModPlugin {
@@ -38,10 +44,14 @@ public class ModIntegrationJei implements IModPlugin {
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
         var recipeManager = Minecraft.getInstance().level.getRecipeManager();
-        registration.addRecipes(GrillCookingCategory.RECIPE_TYPE, recipeManager.getAllRecipesFor(SimpleBBQRegistry.GRILL_COOKING_RECIPE_TYPE.get()));
-        registration.addRecipes(CampfireCookingOnGrillCategory.RECIPE_TYPE, recipeManager.getAllRecipesFor(RecipeType.CAMPFIRE_COOKING));
-        registration.addRecipes(SeasoningCategory.RECIPE_TYPE, recipeManager.getAllRecipesFor(SimpleBBQRegistry.SEASONING_RECIPE_TYPE.get()));
-        registration.addRecipes(SkeweringCategory.RECIPE_TYPE, recipeManager.getAllRecipesFor(SimpleBBQRegistry.SKEWERING_RECIPE_TYPE.get()));
+        List<GrillCookingRecipe> boilingPotRecipes = recipeManager.getAllRecipesFor(SimpleBBQRegistry.GRILL_COOKING_RECIPE_TYPE.get()).stream().map(RecipeHolder::value).collect(Collectors.toList());
+        registration.addRecipes(GrillCookingCategory.RECIPE_TYPE, boilingPotRecipes);
+        List<CampfireCookingRecipe> campfireCookingRecipes = recipeManager.getAllRecipesFor(RecipeType.CAMPFIRE_COOKING).stream().map(RecipeHolder::value).collect(Collectors.toList());
+        registration.addRecipes(CampfireCookingOnGrillCategory.RECIPE_TYPE, campfireCookingRecipes);
+        List<SeasoningRecipe> seasoningRecipes = recipeManager.getAllRecipesFor(SimpleBBQRegistry.SEASONING_RECIPE_TYPE.get()).stream().map(RecipeHolder::value).collect(Collectors.toList());
+        registration.addRecipes(SeasoningCategory.RECIPE_TYPE, seasoningRecipes);
+        List<SkeweringRecipe> skeweringRecipes = recipeManager.getAllRecipesFor(SimpleBBQRegistry.SKEWERING_RECIPE_TYPE.get()).stream().map(RecipeHolder::value).collect(Collectors.toList());
+        registration.addRecipes(SkeweringCategory.RECIPE_TYPE, skeweringRecipes);
 
         registration.addIngredientInfo(
                 List.of(

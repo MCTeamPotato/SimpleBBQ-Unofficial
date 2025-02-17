@@ -1,125 +1,130 @@
-buildscript {
-    repositories {
-        maven { url = 'https://maven.minecraftforge.net' }
-        maven { url = 'https://maven.parchmentmc.org' }
-        mavenCentral()
-    }
-    dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
-        classpath group: 'org.parchmentmc', name: 'librarian', version: '1.+'
-    }
+plugins {
+    id 'maven-publish'
+    id 'java-library'
+    id 'eclipse'
+    id 'net.neoforged.moddev' version '2.0.78'
+    id 'idea'
 }
 
-apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'org.parchmentmc.librarian.forgegradle'
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+base {
+    archivesName = mod_name + '-' + minecraft_version
+}
 
 version = major_version + '.' + minor_version + '.' + patch_version + '-' + version_label
 group = 'com.sihenzhang.simplebbq'
-archivesBaseName = mod_name + '-' + minecraft_version
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+neoForge {
+    version = project.neo_version
 
-println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
-minecraft {
-    mappings channel: mappings_channel, version: mappings_version
-
-    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+    parchment {
+        mappingsVersion = project.parchment_mappings_version
+        minecraftVersion = project.parchment_minecraft_version
+    }
 
     runs {
         client {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            property 'forge.enabledGameTestNamespaces', 'simplebbq'
-            mods {
-                simplebbq {
-                    source sourceSets.main
-                }
-            }
+            client()
+
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
         }
 
         server {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            property 'forge.enabledGameTestNamespaces', 'simplebbq'
-            mods {
-                simplebbq {
-                    source sourceSets.main
-                }
-            }
+            server()
+            programArgument '--nogui'
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
         }
 
         gameTestServer {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            property 'forge.enabledGameTestNamespaces', 'simplebbq'
-            mods {
-                simplebbq {
-                    source sourceSets.main
-                }
-            }
+            type = "gameTestServer"
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
         }
 
         data {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            args '--mod', 'simplebbq', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
-            mods {
-                simplebbq {
-                    source sourceSets.main
-                }
-            }
+            data()
+            programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+        }
+
+        configureEach {
+            systemProperty 'forge.logging.markers', 'REGISTRIES'
+
+            logLevel = org.slf4j.event.Level.DEBUG
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet(sourceSets.main)
+//			sourceSet sourceSets.desktop
         }
     }
 }
 
-sourceSets.main.resources { srcDir 'src/generated/resources' }
-
 repositories {
     maven {
-        name = "Progwml6 maven"
-        url = "https://dvs1.progwml6.com/files/maven"
-        content {
-            includeGroup "mezz.jei"
-        }
-    }
-
-    maven {
-        url "https://cursemaven.com"
+        name = "CurseForge"
+        url = "https://cursemaven.com"
         content {
             includeGroup "curse.maven"
         }
     }
+    maven {
+        name = "Modrinth"
+        url = "https://api.modrinth.com/maven"
+        content {
+            includeGroup "maven.modrinth"
+        }
+    }
+    maven {
+        url "https://maven.blamejared.com/"
+    }
+    maven {
+        url "https://maven.neoforged.net/releases"
+    }
+    maven {
+        name = "TauMC"
+        url = "https://maven.taumc.org/releases"
+    }
+    mavenCentral()
 }
 
 dependencies {
-    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-
-    compileOnly fg.deobf("curse.maven:jei-238222:6075247")
-    runtimeOnly fg.deobf("curse.maven:jei-238222:6075247")
-//    compileOnly fg.deobf("mezz.jei:jei-${minecraft_version}:${jei_version}:api")
-//    runtimeOnly fg.deobf("mezz.jei:jei-${minecraft_version}:${jei_version}")
+    implementation "curse.maven:jei-238222:5846880"
 }
 
-jar {
-    manifest {
-        attributes([
-                "Specification-Title"     : "simplebbq",
-                "Specification-Vendor"    : "Si_hen",
-                "Specification-Version"   : "1",
-                "Implementation-Title"    : project.name,
-                "Implementation-Version"  : project.jar.archiveVersion,
-                "Implementation-Vendor"   : "Si_hen",
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        ])
+
+// Include resources generated by data generators.
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
+    var replaceProperties = [minecraft_version      : minecraft_version,
+                             minecraft_version_range: minecraft_version_range,
+                             neo_version            : neo_version,
+                             neo_version_range      : neo_version_range,
+                             loader_version_range   : loader_version_range,
+                             mod_version            : version
+            ]
+    inputs.properties replaceProperties
+    expand replaceProperties
+    from "src/main/templates"
+    into "build/generated/sources/modMetadata"
+}
+
+// Include the output of "generateModMetadata" as an input directory for the build
+// this works with both building through Gradle and the IDE.
+sourceSets.main.resources.srcDir generateModMetadata
+// To avoid having to run "generateModMetadata" manually, make it run on every project reload
+neoForge.ideSyncTask generateModMetadata
+
+configurations {
+    runtimeClasspath.extendsFrom localRuntime
+}
+
+// IDEA no longer automatically downloads sources/javadoc jars for dependencies, so we need to explicitly enable the behavior.
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
     }
-}
-
-jar.finalizedBy('reobfJar')
-
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8'
 }

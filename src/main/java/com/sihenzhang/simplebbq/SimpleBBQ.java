@@ -5,14 +5,14 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
 
 @Mod(SimpleBBQ.MOD_ID)
 public class SimpleBBQ {
@@ -20,7 +20,7 @@ public class SimpleBBQ {
 
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MOD_ID);
 
-    public static final RegistryObject<CreativeModeTab> TAB = CREATIVE_MODE_TABS.register("tab", () ->
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> TAB = CREATIVE_MODE_TABS.register("tab", () ->
         CreativeModeTab.builder()
             .title(Component.translatable("itemGroup." + MOD_ID))
             .icon(() -> new ItemStack(SimpleBBQRegistry.GRILL_BLOCK_ITEM.get()))
@@ -31,10 +31,9 @@ public class SimpleBBQ {
             .build()
     );
 
-    public SimpleBBQ() {
-        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+    public SimpleBBQ(IEventBus modEventBus, ModContainer modContainer) {
 
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, SimpleBBQConfig.COMMON_CONFIG);
+        modContainer.registerConfig(ModConfig.Type.COMMON, SimpleBBQConfig.COMMON_CONFIG);
 
         CREATIVE_MODE_TABS.register(modEventBus);
 
@@ -56,8 +55,8 @@ public class SimpleBBQ {
         if (event.getTabKey() == CreativeModeTabs.FOOD_AND_DRINKS) {
             // 添加食物类物品到食物和饮料标签页
             SimpleBBQRegistry.ITEMS.getEntries().stream()
-                .map(RegistryObject::get)
-                .filter(item -> item.isEdible())
+                .map(DeferredHolder::get)
+                .filter(item -> item.getFoodProperties(item.getDefaultInstance(), null) != null)
                 .forEach(event::accept);
         }
     }

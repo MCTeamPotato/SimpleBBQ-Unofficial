@@ -11,13 +11,13 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.levelgen.structure.pools.SinglePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorList;
-import net.minecraftforge.event.server.ServerAboutToStartEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 
 import java.util.ArrayList;
 
-@Mod.EventBusSubscriber(modid = SimpleBBQ.MOD_ID)
+@EventBusSubscriber(modid = SimpleBBQ.MOD_ID)
 public class VillageStructures {
     private static final ResourceKey<StructureProcessorList> EMPTY_PROCESSOR_LIST_KEY = ResourceKey.create(Registries.PROCESSOR_LIST, RLUtils.createVanillaRL("empty"));
 

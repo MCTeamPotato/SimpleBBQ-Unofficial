@@ -3,10 +3,14 @@ package com.sihenzhang.simplebbq.block.entity;
 import com.google.common.base.Preconditions;
 import com.sihenzhang.simplebbq.SimpleBBQRegistry;
 import com.sihenzhang.simplebbq.block.GrillBlock;
+import com.sihenzhang.simplebbq.recipe.SeasoningInput;
 import com.sihenzhang.simplebbq.recipe.SeasoningRecipe;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.Packet;
@@ -20,18 +24,19 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.AbstractCookingRecipe;
-import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraftforge.common.util.INBTSerializable;
-import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.items.ItemStackHandler;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.common.util.INBTSerializable;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
+import org.jetbrains.annotations.UnknownNullability;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -50,7 +55,7 @@ public class GrillBlockEntity extends BlockEntity {
 
         @Override
         public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
-            return getCookingRecipe(new SimpleContainer(stack), level).isPresent();
+            return getCookingRecipe(stack, level)!=null;
         }
 
         @Override
@@ -66,11 +71,11 @@ public class GrillBlockEntity extends BlockEntity {
         super(SimpleBBQRegistry.GRILL_BLOCK_ENTITY.get(), pWorldPosition, pBlockState);
     }
 
-    public void initCampfireState(CampfireData data) {
+    public void initCampfireState(CampfireData data, HolderLookup.Provider registries) {
         if (level == null || data == null) {
             return;
         }
-        campfireData.deserializeNBT(data.serializeNBT());
+        campfireData.deserializeNBT(registries,data.serializeNBT(registries));
         var state = this.getBlockState().setValue(GrillBlock.LIT, campfireData.lit);
         level.setBlockAndUpdate(worldPosition, state);
         setChanged(level, worldPosition, state);
@@ -97,12 +102,17 @@ public class GrillBlockEntity extends BlockEntity {
                     hasChanged = true;
                     pBlockEntity.cookingProgress[i]++;
                     if (pBlockEntity.cookingProgress[i] >= pBlockEntity.cookingTime[i]) {
-                        var container = new SimpleContainer(stackInSlot);
-                        var result = pBlockEntity.getCookingRecipe(container, pLevel).map(recipe -> recipe.assemble(container, pLevel.registryAccess())).orElse(stackInSlot);
-                        var seasoningTag = stackInSlot.getTagElement("Seasoning");
+                        var cookingRecipe = pBlockEntity.getCookingRecipe(stackInSlot, pLevel);
+                        if(cookingRecipe == null){
+                            continue;
+                        }
+                        var result = cookingRecipe.value().assemble(new SingleRecipeInput(stackInSlot), pLevel.registryAccess());
+                        CompoundTag compoundTag = stackInSlot.get(DataComponents.CUSTOM_DATA).copyTag();
+                        CompoundTag seasoningTag = compoundTag.getCompound("Seasoning");
                         if (seasoningTag != null) {
                             seasoningTag.putBoolean("HasEffect", true);
-                            result.addTagElement("Seasoning", seasoningTag);
+                            compoundTag.put("Seasoning", seasoningTag);
+                            stackInSlot.set(DataComponents.CUSTOM_DATA, CustomData.of(compoundTag));
                         }
                         Containers.dropItemStack(pLevel, pPos.getX(), (double) pPos.getY() + 0.5D, pPos.getZ(), result);
                         pBlockEntity.inventory.setStackInSlot(i, ItemStack.EMPTY);
@@ -155,18 +165,18 @@ public class GrillBlockEntity extends BlockEntity {
         return campfireData;
     }
 
-    public void setCampfireData(CampfireData data) {
+    public void setCampfireData(CampfireData data, HolderLookup.Provider registries) {
         if (level != null) {
-            campfireData.deserializeNBT(data.serializeNBT());
+            campfireData.deserializeNBT(registries,data.serializeNBT(registries));
             this.markUpdated();
         }
     }
 
     @Override
-    public void load(CompoundTag pTag) {
-        super.load(pTag);
-        campfireData.deserializeNBT(pTag.getCompound("CampfireData"));
-        inventory.deserializeNBT(pTag.getCompound("Inventory"));
+    protected void loadAdditional(CompoundTag pTag, HolderLookup.Provider registries) {
+        super.loadAdditional(pTag, registries);
+        campfireData.deserializeNBT(registries,pTag.getCompound("CampfireData"));
+        inventory.deserializeNBT(registries,pTag.getCompound("Inventory"));
         if (pTag.contains("CookingTimes", Tag.TAG_INT_ARRAY)) {
             var cookingProcessArray = pTag.getIntArray("CookingTimes");
             System.arraycopy(cookingProcessArray, 0, cookingProgress, 0, Math.min(cookingProgress.length, cookingProcessArray.length));
@@ -178,19 +188,19 @@ public class GrillBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag pTag) {
-        super.saveAdditional(pTag);
-        pTag.put("CampfireData", campfireData.serializeNBT());
-        pTag.put("Inventory", inventory.serializeNBT());
+    protected void saveAdditional(CompoundTag pTag, HolderLookup.Provider registries) {
+        super.saveAdditional(pTag,registries);
+        pTag.put("CampfireData", campfireData.serializeNBT(registries));
+        pTag.put("Inventory", inventory.serializeNBT(registries));
         pTag.putIntArray("CookingTimes", cookingProgress);
         pTag.putIntArray("CookingTotalTimes", cookingTime);
     }
 
     @Override
-    public CompoundTag getUpdateTag() {
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         var tag = new CompoundTag();
-        tag.put("CampfireData", campfireData.serializeNBT());
-        tag.put("Inventory", inventory.serializeNBT());
+        tag.put("CampfireData", campfireData.serializeNBT(registries));
+        tag.put("Inventory", inventory.serializeNBT(registries));
         return tag;
     }
 
@@ -200,18 +210,24 @@ public class GrillBlockEntity extends BlockEntity {
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
-    public <C extends Container> Optional<? extends AbstractCookingRecipe> getCookingRecipe(C pInventory, Level pLevel) {
-        var grillCookingRecipe = pLevel.getRecipeManager().getRecipeFor(SimpleBBQRegistry.GRILL_COOKING_RECIPE_TYPE.get(), pInventory, pLevel);
-        return grillCookingRecipe.isPresent() ? grillCookingRecipe : pLevel.getRecipeManager().getRecipeFor(RecipeType.CAMPFIRE_COOKING, pInventory, pLevel);
+    @Nullable
+    public RecipeHolder<? extends AbstractCookingRecipe> getCookingRecipe(ItemStack itemStack, Level pLevel) {
+        try {
+            var grillCookingRecipe = pLevel.getRecipeManager().getRecipeFor(SimpleBBQRegistry.GRILL_COOKING_RECIPE_TYPE.get(), new SingleRecipeInput(itemStack), pLevel);
+            return grillCookingRecipe.isPresent() ? grillCookingRecipe.orElseThrow() : pLevel.getRecipeManager().getRecipeFor(RecipeType.CAMPFIRE_COOKING, new SingleRecipeInput(itemStack), pLevel).orElseThrow();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
-    public Optional<? extends AbstractCookingRecipe> getCookableRecipe(ItemStack input) {
+    @Nullable
+    public RecipeHolder<? extends AbstractCookingRecipe> getCookableRecipe(ItemStack input) {
         for (var i = 0; i < inventory.getSlots(); i++) {
             if (inventory.getStackInSlot(i).isEmpty()) {
-                return this.getCookingRecipe(new SimpleContainer(input), level);
+                return this.getCookingRecipe(input, level);
             }
         }
-        return Optional.empty();
+        return null;
     }
 
     public boolean placeFood(ItemStack input, int cookTime) {
@@ -239,9 +255,14 @@ public class GrillBlockEntity extends BlockEntity {
         return true;
     }
 
-    public Optional<SeasoningRecipe> getSeasoningRecipe(ItemStack seasoning, boolean isHittingLeftSide) {
-        var input = inventory.getStackInSlot(isHittingLeftSide ? 0 : 1);
-        return level.getRecipeManager().getRecipeFor(SimpleBBQRegistry.SEASONING_RECIPE_TYPE.get(), new SimpleContainer(input, seasoning), level);
+    @Nullable
+    public RecipeHolder<SeasoningRecipe> getSeasoningRecipe(ItemStack seasoning, boolean isHittingLeftSide) {
+        try {
+            var input = inventory.getStackInSlot(isHittingLeftSide ? 0 : 1);
+            return level.getRecipeManager().getRecipeFor(SimpleBBQRegistry.SEASONING_RECIPE_TYPE.get(), new SeasoningInput(input, seasoning), level).orElseThrow();
+        }catch (Exception e){
+            return null;
+        }
     }
 
     public boolean addSeasoning(Player player, ItemStack seasoning, boolean isHittingLeftSide) {
@@ -249,12 +270,12 @@ public class GrillBlockEntity extends BlockEntity {
         if (input.isEmpty()) {
             return false;
         }
-        var container = new SimpleContainer(input, seasoning);
+        var container = new SeasoningInput(input, seasoning);
         var optionalRecipe = level.getRecipeManager().getRecipeFor(SimpleBBQRegistry.SEASONING_RECIPE_TYPE.get(), container, level);
         if (optionalRecipe.isEmpty()) {
             return false;
         }
-        var recipe = optionalRecipe.get();
+        var recipe = optionalRecipe.get().value();
         var result = recipe.assemble(container, level.registryAccess());
         if (result.isEmpty()) {
             return false;
@@ -274,7 +295,7 @@ public class GrillBlockEntity extends BlockEntity {
     }
 
     public static final class CampfireData implements INBTSerializable<CompoundTag> {
-        public ResourceLocation registryName = ForgeRegistries.BLOCKS.getKey(Blocks.AIR);
+        public ResourceLocation registryName = BuiltInRegistries.BLOCK.getKey(Blocks.AIR);
         public boolean lit = false;
         public Direction facing;
 
@@ -283,15 +304,35 @@ public class GrillBlockEntity extends BlockEntity {
 
         public CampfireData(BlockState state) {
             Preconditions.checkArgument(GrillBlock.isCampfire(state), "State must be a Campfire.");
-            this.registryName = ForgeRegistries.BLOCKS.getKey(state.getBlock());
+            this.registryName = BuiltInRegistries.BLOCK.getKey(state.getBlock());
             this.lit = state.getValue(BlockStateProperties.LIT);
             if (state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
                 this.facing = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
             }
         }
 
+        public BlockState toBlockState() {
+            if (registryName == null) {
+                return Blocks.AIR.defaultBlockState();
+            }
+            var state = BuiltInRegistries.BLOCK.get(registryName).defaultBlockState();
+            if (state.hasProperty(BlockStateProperties.LIT)) {
+                state = state.setValue(BlockStateProperties.LIT, lit);
+            }
+            if (facing != null && state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
+                state = state.setValue(BlockStateProperties.HORIZONTAL_FACING, facing);
+            }
+            return state;
+        }
+
+        public CampfireData copy(HolderLookup.Provider provider) {
+            var newCampfireData = new GrillBlockEntity.CampfireData();
+            newCampfireData.deserializeNBT(provider,this.serializeNBT(provider));
+            return newCampfireData;
+        }
+
         @Override
-        public CompoundTag serializeNBT() {
+        public @UnknownNullability CompoundTag serializeNBT(HolderLookup.Provider provider) {
             CompoundTag tag = new CompoundTag();
             tag.putString("RegistryName", registryName.toString());
             tag.putBoolean("Lit", lit);
@@ -302,32 +343,12 @@ public class GrillBlockEntity extends BlockEntity {
         }
 
         @Override
-        public void deserializeNBT(CompoundTag nbt) {
-            registryName = new ResourceLocation(nbt.getString("RegistryName"));
+        public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
+            registryName = ResourceLocation.tryParse(nbt.getString("RegistryName"));
             lit = nbt.getBoolean("Lit");
             if (nbt.contains("Facing", Tag.TAG_STRING)) {
                 facing = Direction.valueOf(nbt.getString("Facing"));
             }
-        }
-
-        public BlockState toBlockState() {
-            if (registryName == null) {
-                return Blocks.AIR.defaultBlockState();
-            }
-            var state = ForgeRegistries.BLOCKS.getValue(registryName).defaultBlockState();
-            if (state.hasProperty(BlockStateProperties.LIT)) {
-                state = state.setValue(BlockStateProperties.LIT, lit);
-            }
-            if (facing != null && state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
-                state = state.setValue(BlockStateProperties.HORIZONTAL_FACING, facing);
-            }
-            return state;
-        }
-
-        public CampfireData copy() {
-            var newCampfireData = new GrillBlockEntity.CampfireData();
-            newCampfireData.deserializeNBT(this.serializeNBT());
-            return newCampfireData;
         }
     }
 }

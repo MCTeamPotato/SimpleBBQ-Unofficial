@@ -5,11 +5,11 @@ import com.sihenzhang.simplebbq.block.SkeweringTableBlock;
 import com.sihenzhang.simplebbq.block.entity.SkeweringTableBlockEntity;
 import com.sihenzhang.simplebbq.tag.SimpleBBQItemTags;
 import net.minecraft.world.InteractionResult;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
-@Mod.EventBusSubscriber(modid = SimpleBBQ.MOD_ID)
+@EventBusSubscriber(modid = SimpleBBQ.MOD_ID)
 public class PlayerUseSkeweringTableToSkewerEvent {
     @SubscribeEvent
     public static void onBlockRightClick(final PlayerInteractEvent.RightClickBlock event) {

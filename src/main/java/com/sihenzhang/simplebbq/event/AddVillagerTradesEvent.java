@@ -3,23 +3,23 @@ package com.sihenzhang.simplebbq.event;
 import com.sihenzhang.simplebbq.SimpleBBQ;
 import com.sihenzhang.simplebbq.SimpleBBQRegistry;
 import com.sihenzhang.simplebbq.SimpleBBQVillagers;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.npc.VillagerTrades;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.common.BasicItemListing;
-import net.minecraftforge.event.village.VillagerTradesEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.BasicItemListing;
+import net.neoforged.neoforge.event.village.VillagerTradesEvent;
 
-@Mod.EventBusSubscriber(modid = SimpleBBQ.MOD_ID)
+@EventBusSubscriber(modid = SimpleBBQ.MOD_ID)
 public class AddVillagerTradesEvent {
     @SubscribeEvent
     public static void onVillagerTrades(final VillagerTradesEvent event) {
         var profession = event.getType();
-        if (SimpleBBQVillagers.SKEWERMAN.getId().equals(ForgeRegistries.VILLAGER_PROFESSIONS.getKey(profession))) {
+        if (SimpleBBQVillagers.SKEWERMAN.getId().equals(BuiltInRegistries.VILLAGER_PROFESSION.getKey(profession))) {
             var trades = event.getTrades();
 
             var noviceTrades = trades.get(1);

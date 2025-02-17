@@ -3,24 +3,27 @@ package com.sihenzhang.simplebbq.client;
 import com.sihenzhang.simplebbq.SimpleBBQ;
 import com.sihenzhang.simplebbq.util.I18nUtils;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.event.entity.player.ItemTooltipEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 
 import java.util.function.Supplier;
 
-@Mod.EventBusSubscriber(value = Dist.CLIENT, modid = SimpleBBQ.MOD_ID)
+@EventBusSubscriber(value = Dist.CLIENT, modid = SimpleBBQ.MOD_ID)
 public class SeasoningTooltip {
     private static final Supplier<MutableComponent> SPACE = () -> Component.literal("  ");
 
     @SubscribeEvent
     public static void onTooltip(final ItemTooltipEvent event) {
         var itemStack = event.getItemStack();
-        var seasoningTag = itemStack.getTagElement("Seasoning");
+        CompoundTag compoundTag = itemStack.get(DataComponents.CUSTOM_DATA).copyTag();
+        CompoundTag seasoningTag = compoundTag.getCompound("Seasoning");
         if (seasoningTag != null && seasoningTag.contains("SeasoningList", Tag.TAG_LIST)) {
             var seasoningList = seasoningTag.getList("SeasoningList", Tag.TAG_STRING);
             var hasEffect = seasoningTag.getBoolean("HasEffect");

@@ -1,0 +1,11 @@
+{
+  "type": "simplebbq:skewering",
+  "count": 1,
+  "ingredient": {
+    "item": "minecraft:bread"
+  },
+  "result": {
+    "count": 1,
+    "id": "simplebbq:bread_slice_skewer"
+  }
+}

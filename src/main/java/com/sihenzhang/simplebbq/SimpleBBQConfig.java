@@ -1,15 +1,16 @@
 package com.sihenzhang.simplebbq;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class SimpleBBQConfig {
-    public static ForgeConfigSpec COMMON_CONFIG;
+    public static ModConfigSpec COMMON_CONFIG;
 
-    public static ForgeConfigSpec.IntValue CAMPFIRE_COOKING_ON_GRILL_MINIMUM_COOKING_TIME;
-    public static ForgeConfigSpec.DoubleValue CAMPFIRE_COOKING_ON_GRILL_COOKING_TIME_MODIFIER;
+    public static ModConfigSpec.IntValue CAMPFIRE_COOKING_ON_GRILL_MINIMUM_COOKING_TIME;
+    public static ModConfigSpec.DoubleValue CAMPFIRE_COOKING_ON_GRILL_COOKING_TIME_MODIFIER;
 
     static {
-        final var commonBuilder = new ForgeConfigSpec.Builder();
+        final var commonBuilder = new ModConfigSpec.Builder();
 
         commonBuilder.comment("General settings").push("general");
         CAMPFIRE_COOKING_ON_GRILL_MINIMUM_COOKING_TIME = commonBuilder

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": {
+      "item": "minecraft:iron_trapdoor"
+    },
+    "I": {
+      "tag": "c:rods/wooden"
+    },
+    "X": {
+      "tag": "c:ingots/iron"
+    }
+  },
+  "pattern": [
+    "X#X",
+    "I I",
+    "I I"
+  ],
+  "result": {
+    "count": 1,
+    "id": "simplebbq:grill"
+  }
+}

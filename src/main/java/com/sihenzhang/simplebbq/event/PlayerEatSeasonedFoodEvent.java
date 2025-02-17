@@ -1,22 +1,25 @@
 package com.sihenzhang.simplebbq.event;
 
 import com.sihenzhang.simplebbq.SimpleBBQ;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.util.FakePlayer;
+import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
 
-@Mod.EventBusSubscriber(modid = SimpleBBQ.MOD_ID)
+@EventBusSubscriber(modid = SimpleBBQ.MOD_ID)
 public class PlayerEatSeasonedFoodEvent {
     @SubscribeEvent
     public static void onItemUseStart(final LivingEntityUseItemEvent.Start event) {
         var stack = event.getItem();
-        var seasoningTag = stack.getTagElement("Seasoning");
+        CompoundTag compoundTag = stack.get(DataComponents.CUSTOM_DATA).copyTag();
+        CompoundTag seasoningTag = compoundTag.getCompound("Seasoning");
         if (seasoningTag != null && seasoningTag.getBoolean("HasEffect") && seasoningTag.contains("SeasoningList", Tag.TAG_LIST)) {
             var seasoningList = seasoningTag.getList("SeasoningList", Tag.TAG_STRING);
             if (hasSeasoning(seasoningList, "chili_powder")) {
@@ -28,7 +31,8 @@ public class PlayerEatSeasonedFoodEvent {
     @SubscribeEvent
     public static void onItemUseFinish(final LivingEntityUseItemEvent.Finish event) {
         var stack = event.getItem();
-        var seasoningTag = stack.getTagElement("Seasoning");
+        CompoundTag compoundTag = stack.get(DataComponents.CUSTOM_DATA).copyTag();
+        CompoundTag seasoningTag = compoundTag.getCompound("Seasoning");
         if (seasoningTag != null && seasoningTag.getBoolean("HasEffect") && seasoningTag.contains("SeasoningList", Tag.TAG_LIST)) {
             var seasoningList = seasoningTag.getList("SeasoningList", Tag.TAG_STRING);
             if (hasSeasoning(seasoningList, "honey")) {
@@ -38,8 +42,8 @@ public class PlayerEatSeasonedFoodEvent {
                 var foodProperties = stack.getFoodProperties(player);
                 if (foodProperties != null) {
                     var foodData = player.getFoodData();
-                    var baseNutrition = foodProperties.getNutrition();
-                    var baseSaturationModifier = foodProperties.getSaturationModifier();
+                    var baseNutrition = foodProperties.nutrition();
+                    var baseSaturationModifier = foodProperties.saturation();
                     var additionalNutrition = 0;
                     var additionalSaturationModifier = 0.0F;
                     if (hasSeasoning(seasoningList, "salt_and_pepper")) {

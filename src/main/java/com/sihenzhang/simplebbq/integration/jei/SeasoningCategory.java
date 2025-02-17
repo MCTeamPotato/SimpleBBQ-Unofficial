@@ -17,11 +17,14 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -42,12 +45,15 @@ public class SeasoningCategory extends BaseCategory<SeasoningRecipe> {
             public List<ItemStack> load(SeasoningRecipe key) {
                 return Arrays.stream(key.getIngredient().getItems()).map(stack -> {
                     var copiedStack = stack.copy();
-                    var seasoningTag = copiedStack.getOrCreateTagElement("Seasoning");
+                    CompoundTag compoundTag = stack.get(DataComponents.CUSTOM_DATA).copyTag();
+                    CompoundTag seasoningTag = compoundTag.getCompound("Seasoning");
                     var seasoningList = seasoningTag.getList("SeasoningList", Tag.TAG_STRING);
                     seasoningList.add(StringTag.valueOf(key.getName().toLowerCase(Locale.ROOT)));
                     // Sort the seasoning list so that item can be stacked even if the seasoning order is not the same
                     seasoningList.sort(Comparator.comparing(Tag::getAsString));
                     seasoningTag.put("SeasoningList", seasoningList);
+                    compoundTag.put("Seasoning", seasoningTag);
+                    copiedStack.set(DataComponents.CUSTOM_DATA, CustomData.of(compoundTag));
                     return copiedStack;
                 }).toList();
             }

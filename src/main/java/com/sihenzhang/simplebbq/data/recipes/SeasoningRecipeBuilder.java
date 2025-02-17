@@ -1,23 +1,27 @@
 package com.sihenzhang.simplebbq.data.recipes;
 
-import com.google.gson.JsonObject;
-import com.sihenzhang.simplebbq.SimpleBBQRegistry;
-import net.minecraft.advancements.CriterionTriggerInstance;
-import net.minecraft.data.recipes.FinishedRecipe;
+import com.sihenzhang.simplebbq.recipe.SeasoningRecipe;
+import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementRequirements;
+import net.minecraft.advancements.AdvancementRewards;
+import net.minecraft.advancements.Criterion;
+import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
 import net.minecraft.data.recipes.RecipeBuilder;
+import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.RecipeSerializer;
 
 import javax.annotation.Nullable;
-import java.util.function.Consumer;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class SeasoningRecipeBuilder implements RecipeBuilder {
     private final Ingredient ingredient;
     private final Ingredient seasoning;
     private final String name;
+    protected final Map<String, Criterion<?>> criteria = new LinkedHashMap<>();
 
     public SeasoningRecipeBuilder(Ingredient ingredient, Ingredient seasoning, String name) {
         this.ingredient = ingredient;
@@ -30,7 +34,8 @@ public class SeasoningRecipeBuilder implements RecipeBuilder {
     }
 
     @Override
-    public RecipeBuilder unlockedBy(String pCriterionName, CriterionTriggerInstance pCriterionTrigger) {
+    public RecipeBuilder unlockedBy(String name, Criterion<?> criterion) {
+        this.criteria.put(name, criterion);
         return this;
     }
 
@@ -45,50 +50,13 @@ public class SeasoningRecipeBuilder implements RecipeBuilder {
     }
 
     @Override
-    public void save(Consumer<FinishedRecipe> pFinishedRecipeConsumer, ResourceLocation pRecipeId) {
-        pFinishedRecipeConsumer.accept(new SeasoningRecipeBuilder.Result(pRecipeId, ingredient, seasoning, name));
+    public void save(RecipeOutput recipeOutput, ResourceLocation pRecipeId) {
+        Advancement.Builder advancement = recipeOutput.advancement()
+                .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(pRecipeId))
+                .rewards(AdvancementRewards.Builder.recipe(pRecipeId))
+                .requirements(AdvancementRequirements.Strategy.OR);
+        this.criteria.forEach(advancement::addCriterion);
+        recipeOutput.accept(pRecipeId,new SeasoningRecipe(ingredient,seasoning,name),advancement.build(pRecipeId.withPrefix("recipes/")));
     }
 
-    public static class Result implements FinishedRecipe {
-        private final ResourceLocation id;
-        private final Ingredient ingredient;
-        private final Ingredient seasoning;
-        private final String name;
-
-        public Result(ResourceLocation id, Ingredient ingredient, Ingredient seasoning, String name) {
-            this.id = id;
-            this.ingredient = ingredient;
-            this.seasoning = seasoning;
-            this.name = name;
-        }
-
-        @Override
-        public void serializeRecipeData(JsonObject pJson) {
-            pJson.add("ingredient", ingredient.toJson());
-            pJson.add("seasoning", seasoning.toJson());
-            pJson.addProperty("name", name);
-        }
-
-        @Override
-        public ResourceLocation getId() {
-            return id;
-        }
-
-        @Override
-        public RecipeSerializer<?> getType() {
-            return SimpleBBQRegistry.SEASONING_RECIPE_SERIALIZER.get();
-        }
-
-        @Nullable
-        @Override
-        public JsonObject serializeAdvancement() {
-            return null;
-        }
-
-        @Nullable
-        @Override
-        public ResourceLocation getAdvancementId() {
-            return null;
-        }
-    }
 }

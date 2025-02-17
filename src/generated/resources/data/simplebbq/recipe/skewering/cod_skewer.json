@@ -1,0 +1,11 @@
+{
+  "type": "simplebbq:skewering",
+  "count": 1,
+  "ingredient": {
+    "item": "minecraft:cod"
+  },
+  "result": {
+    "count": 1,
+    "id": "simplebbq:cod_skewer"
+  }
+}

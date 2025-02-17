@@ -2,13 +2,18 @@ package com.sihenzhang.simplebbq.block;
 
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableSet;
+import com.mojang.serialization.MapCodec;
 import com.sihenzhang.simplebbq.SimpleBBQConfig;
 import com.sihenzhang.simplebbq.SimpleBBQRegistry;
 import com.sihenzhang.simplebbq.block.entity.GrillBlockEntity;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -17,19 +22,22 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageSources;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -45,11 +53,12 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.*;
-import net.minecraftforge.common.ForgeMod;
-import net.minecraftforge.items.wrapper.RecipeWrapper;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.NeoForgeMod;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
 import javax.annotation.Nullable;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -66,19 +75,19 @@ public class GrillBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
             Block.box(1.0D, 15.5D, 1.0D, 15.0D, 16.0D, 15.0D),
             BooleanOp.ONLY_FIRST
     );
-    protected static final Supplier<Set<Item>> CAMPFIRE_ITEMS = Suppliers.memoize(() -> ForgeRegistries.ITEMS.getValues().stream().filter(item -> isCampfire(item.getDefaultInstance())).collect(ImmutableSet.toImmutableSet()));
+    protected static final Supplier<Set<Item>> CAMPFIRE_ITEMS = Suppliers.memoize(() -> BuiltInRegistries.ITEM.stream().filter(item -> isCampfire(item.getDefaultInstance())).collect(ImmutableSet.toImmutableSet()));
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
-    public GrillBlock() {
-        super(Properties.copy(Blocks.IRON_BLOCK).requiresCorrectToolForDrops().strength(5.0F, 6.0F).sound(SoundType.LANTERN).lightLevel(state -> state.getValue(LIT) ? 15 : 0).dynamicShape().noOcclusion());
+    public GrillBlock(Properties properties) {
+        super(properties);
         this.registerDefaultState(stateDefinition.any().setValue(LIT, false).setValue(WATERLOGGED, false).setValue(FACING, Direction.NORTH));
     }
 
     @Override
     @SuppressWarnings("deprecation")
-    public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
+    public ItemInteractionResult useItemOn(ItemStack stack,BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
         if (pLevel.getBlockEntity(pPos) instanceof GrillBlockEntity grillBlockEntity) {
             var stackInHand = pPlayer.getItemInHand(pHand);
             var campfireData = grillBlockEntity.getCampfireData();
@@ -88,7 +97,7 @@ public class GrillBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                 // TODO: set campfire state with stack nbt
                 var campfireState = ((BlockItem) stackInHand.getItem()).getBlock().getStateForPlacement(new BlockPlaceContext(pLevel, pPlayer, pHand, stackInHand, pHit));
                 var newCampfireData = new GrillBlockEntity.CampfireData(campfireState);
-                grillBlockEntity.setCampfireData(newCampfireData);
+                grillBlockEntity.setCampfireData(newCampfireData,pLevel.registryAccess());
                 pLevel.setBlockAndUpdate(pPos, pState.setValue(LIT, newCampfireData.lit));
                 if (pPlayer instanceof ServerPlayer serverPlayer) {
                     CriteriaTriggers.PLACED_BLOCK.trigger(serverPlayer, pPos, stackInHand);
@@ -99,32 +108,32 @@ public class GrillBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                 if (!pPlayer.getAbilities().instabuild) {
                     stackInHand.shrink(1);
                 }
-                return InteractionResult.sidedSuccess(pLevel.isClientSide());
+                return ItemInteractionResult.sidedSuccess(pLevel.isClientSide());
             }
 
             // try to light the grill
             if (pState.hasProperty(LIT) && !pState.getValue(LIT) && pState.hasProperty(WATERLOGGED) && !pState.getValue(WATERLOGGED) && isCampfire(campfireData.toBlockState()) && !campfireData.lit) {
                 if (stackInHand.getItem() instanceof FlintAndSteelItem) {
                     pLevel.playSound(pPlayer, pPos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS, 1.0F, Mth.nextFloat(pLevel.getRandom(), 0.8F, 1.2F));
-                    var newCampfireData = campfireData.copy();
+                    var newCampfireData = campfireData.copy(pLevel.registryAccess());
                     newCampfireData.lit = true;
-                    grillBlockEntity.setCampfireData(newCampfireData);
+                    grillBlockEntity.setCampfireData(newCampfireData,pLevel.registryAccess());
                     pLevel.setBlockAndUpdate(pPos, pState.setValue(LIT, true));
                     pLevel.gameEvent(pPlayer, GameEvent.BLOCK_PLACE, pPos);
-                    stackInHand.hurtAndBreak(1, pPlayer, player -> player.broadcastBreakEvent(pHand));
-                    return InteractionResult.sidedSuccess(pLevel.isClientSide());
+                    stackInHand.hurtAndBreak(1, pPlayer, EquipmentSlot.MAINHAND);
+                    return ItemInteractionResult.sidedSuccess(pLevel.isClientSide());
                 }
                 if (stackInHand.getItem() instanceof FireChargeItem) {
                     pLevel.playSound(pPlayer, pPos, SoundEvents.FIRECHARGE_USE, SoundSource.BLOCKS, 1.0F, Mth.nextFloat(pLevel.getRandom(), 0.8F, 1.2F));
-                    var newCampfireData = campfireData.copy();
+                    var newCampfireData = campfireData.copy(pLevel.registryAccess());
                     newCampfireData.lit = true;
-                    grillBlockEntity.setCampfireData(newCampfireData);
+                    grillBlockEntity.setCampfireData(newCampfireData,pLevel.registryAccess());
                     pLevel.setBlockAndUpdate(pPos, pState.setValue(LIT, true));
                     pLevel.gameEvent(pPlayer, GameEvent.BLOCK_PLACE, pPos);
                     if (!pPlayer.getAbilities().instabuild) {
                         stackInHand.shrink(1);
                     }
-                    return InteractionResult.sidedSuccess(pLevel.isClientSide());
+                    return ItemInteractionResult.sidedSuccess(pLevel.isClientSide());
                 }
             }
 
@@ -135,20 +144,20 @@ public class GrillBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                 }
                 dowse(pPlayer, pLevel, pPos, pState);
                 pLevel.setBlockAndUpdate(pPos, pState.setValue(LIT, false));
-                stackInHand.hurtAndBreak(1, pPlayer, player -> player.broadcastBreakEvent(pHand));
-                return InteractionResult.sidedSuccess(pLevel.isClientSide());
+                stackInHand.hurtAndBreak(1, pPlayer,  EquipmentSlot.MAINHAND);
+                return ItemInteractionResult.sidedSuccess(pLevel.isClientSide());
             }
 
             // try to cook
             var optionalCookingRecipe = grillBlockEntity.getCookableRecipe(stackInHand);
-            if (optionalCookingRecipe.isPresent()) {
-                var cookingRecipe = optionalCookingRecipe.get();
-                var cookingTime = optionalCookingRecipe.get().getCookingTime();
+            if (optionalCookingRecipe!=null) {
+                var cookingRecipe = optionalCookingRecipe.value();
+                var cookingTime = optionalCookingRecipe.value().getCookingTime();
                 var actualCookingTime = cookingRecipe.getType() == RecipeType.CAMPFIRE_COOKING ? Mth.clamp((int) (cookingTime * SimpleBBQConfig.CAMPFIRE_COOKING_ON_GRILL_COOKING_TIME_MODIFIER.get()), Math.min(SimpleBBQConfig.CAMPFIRE_COOKING_ON_GRILL_MINIMUM_COOKING_TIME.get(), cookingTime), cookingTime) : cookingTime;
                 if (!pLevel.isClientSide() && grillBlockEntity.placeFood(pPlayer.getAbilities().instabuild ? stackInHand.copy() : stackInHand, actualCookingTime)) {
-                    return InteractionResult.SUCCESS;
+                    return ItemInteractionResult.SUCCESS;
                 }
-                return InteractionResult.CONSUME;
+                return ItemInteractionResult.CONSUME;
             }
 
             if (pHit.getType() == HitResult.Type.BLOCK && pHit.getDirection() == Direction.UP) {
@@ -179,44 +188,54 @@ public class GrillBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                         // try to remove from the left side
                         if (pHand == InteractionHand.MAIN_HAND && stackInHand.isEmpty()) {
                             if (!pLevel.isClientSide() && grillBlockEntity.removeFood(pPlayer, pHand, true)) {
-                                return InteractionResult.SUCCESS;
+                                return ItemInteractionResult.SUCCESS;
                             }
-                            return InteractionResult.CONSUME;
+                            return ItemInteractionResult.CONSUME;
                         }
                         // try to season food from the left side
                         var optionalSeasoningRecipe = grillBlockEntity.getSeasoningRecipe(stackInHand, true);
-                        if (optionalSeasoningRecipe.isPresent()) {
+                        if (optionalSeasoningRecipe!=null) {
                             if (!pLevel.isClientSide() && grillBlockEntity.addSeasoning(pPlayer, pPlayer.getAbilities().instabuild ? stackInHand.copy() : stackInHand, true)) {
-                                return InteractionResult.SUCCESS;
+                                return ItemInteractionResult.SUCCESS;
                             }
-                            return InteractionResult.CONSUME;
+                            return ItemInteractionResult.CONSUME;
                         }
                     } else if (isHittingRightSide) {
                         // try to remove from the right side
                         if (pHand == InteractionHand.MAIN_HAND && stackInHand.isEmpty()) {
                             if (!pLevel.isClientSide() && grillBlockEntity.removeFood(pPlayer, pHand, false)) {
-                                return InteractionResult.SUCCESS;
+                                return ItemInteractionResult.SUCCESS;
                             }
-                            return InteractionResult.CONSUME;
+                            return ItemInteractionResult.CONSUME;
                         }
                         // try to season food from the right side
                         var optionalSeasoningRecipe = grillBlockEntity.getSeasoningRecipe(stackInHand, false);
-                        if (optionalSeasoningRecipe.isPresent()) {
+                        if (optionalSeasoningRecipe!=null) {
                             if (!pLevel.isClientSide() && grillBlockEntity.addSeasoning(pPlayer, pPlayer.getAbilities().instabuild ? stackInHand.copy() : stackInHand, false)) {
-                                return InteractionResult.SUCCESS;
+                                return ItemInteractionResult.SUCCESS;
                             }
-                            return InteractionResult.CONSUME;
+                            return ItemInteractionResult.CONSUME;
                         }
                     }
                 }
             }
         }
-        return InteractionResult.PASS;
+        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 
     @Override
     public void stepOn(Level pLevel, BlockPos pPos, BlockState pState, Entity pEntity) {
-        if (!pEntity.fireImmune() && pState.hasProperty(LIT) && pState.getValue(LIT) && pEntity instanceof LivingEntity livingEntity && !EnchantmentHelper.hasFrostWalker(livingEntity)) {
+        if (!pEntity.fireImmune() && pState.hasProperty(LIT) && pState.getValue(LIT) && pEntity instanceof LivingEntity livingEntity) {
+            for (ItemStack next : livingEntity.getArmorSlots()) {
+                if (next.has(DataComponents.ENCHANTMENTS)) {
+                    for (Holder<Enchantment> enchantmentHolder : next.get(DataComponents.ENCHANTMENTS).keySet()) {
+                        if (enchantmentHolder.is(Enchantments.FIRE_PROTECTION)) {
+                            return;
+                        }
+                    }
+                }
+            }
+
             var damage = 1.0F;
             if (pLevel.getBlockEntity(pPos) instanceof GrillBlockEntity grillBlockEntity) {
                 var block = grillBlockEntity.getCampfireData().toBlockState().getBlock();
@@ -234,7 +253,10 @@ public class GrillBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
     public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pIsMoving) {
         if (!pState.is(pNewState.getBlock())) {
             if (pLevel.getBlockEntity(pPos) instanceof GrillBlockEntity grillBlockEntity) {
-                Containers.dropContents(pLevel, pPos, new RecipeWrapper(grillBlockEntity.getInventory()));
+                ItemStackHandler inventory = grillBlockEntity.getInventory();
+                for(int i = 0; i < inventory.getSlots(); i++) {
+                    Containers.dropItemStack(pLevel, pPos.getX(), pPos.getY(), pPos.getZ(), inventory.getStackInSlot(i));
+                }
             }
             super.onRemove(pState, pLevel, pPos, pNewState, pIsMoving);
         }
@@ -267,7 +289,13 @@ public class GrillBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                 if (hitResult.getType() == HitResult.Type.BLOCK) {
                     var blockHitResult = (BlockHitResult) hitResult;
                     if (!isHittingGrill(blockHitResult)) {
-                        return campfireState.getBlock().getDestroyProgress(campfireState, pPlayer, pLevel, pPos);
+                        float f = pState.getDestroySpeed(pLevel, pPos);
+                        if (f == -1.0F) {
+                            return 0.0F;
+                        } else {
+                            int i = net.neoforged.neoforge.event.EventHooks.doPlayerHarvestCheck(pPlayer, pState, pLevel, pPos) ? 30 : 100;
+                            return pPlayer.getDigSpeed(pState, pPos) / f / (float)i;
+                        }
                     }
                 }
             }
@@ -276,7 +304,7 @@ public class GrillBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
     }
 
     @Override
-    public void playerWillDestroy(Level pLevel, BlockPos pPos, BlockState pState, Player pPlayer) {
+    public BlockState playerWillDestroy(Level pLevel, BlockPos pPos, BlockState pState, Player pPlayer) {
         if (pLevel.getBlockEntity(pPos) instanceof GrillBlockEntity grillBlockEntity) {
             var campfireState = grillBlockEntity.getCampfireData().toBlockState();
             if (isCampfire(campfireState)) {
@@ -284,13 +312,12 @@ public class GrillBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                 if (hitResult.getType() == HitResult.Type.BLOCK) {
                     var blockHitResult = (BlockHitResult) hitResult;
                     if (!isHittingGrill(blockHitResult)) {
-                        campfireState.getBlock().playerWillDestroy(pLevel, pPos, campfireState, pPlayer);
-                        return;
+                        return campfireState.getBlock().playerWillDestroy(pLevel, pPos, campfireState, pPlayer);
                     }
                 }
             }
         }
-        super.playerWillDestroy(pLevel, pPos, pState, pPlayer);
+        return super.playerWillDestroy(pLevel, pPos, pState, pPlayer);
     }
 
     @Override
@@ -317,7 +344,7 @@ public class GrillBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                         }
                         return level.setBlock(pos, campfireStateForPlacement, level.isClientSide() ? Block.UPDATE_ALL_IMMEDIATE : Block.UPDATE_ALL);
                     } else {
-                        grillBlockEntity.setCampfireData(new GrillBlockEntity.CampfireData());
+                        grillBlockEntity.setCampfireData(new GrillBlockEntity.CampfireData(),level.registryAccess());
                         level.setBlock(pos, state.setValue(LIT, false), level.isClientSide() ? Block.UPDATE_ALL_IMMEDIATE : Block.UPDATE_ALL);
                         if (!player.isCreative() && campfireState.getBlock().canHarvestBlock(campfireState, level, pos, player)) {
                             campfireState.getBlock().playerDestroy(level, player, pos, campfireState, null, player.getMainHandItem().copy());
@@ -331,7 +358,7 @@ public class GrillBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
     }
 
     @Override
-    public ItemStack getCloneItemStack(BlockState state, HitResult target, BlockGetter level, BlockPos pos, Player player) {
+    public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
         if (level.getBlockEntity(pos) instanceof GrillBlockEntity grillBlockEntity) {
             var campfireState = grillBlockEntity.getCampfireData().toBlockState();
             if (isCampfire(campfireState)) {
@@ -349,7 +376,7 @@ public class GrillBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
     }
 
     private static HitResult getPlayerHitResult(Player pPlayer) {
-        var reachDistanceAttribute = pPlayer.getAttribute(ForgeMod.ENTITY_REACH.get());
+        var reachDistanceAttribute = pPlayer.getAttribute(Attributes.ENTITY_INTERACTION_RANGE);
         var reachDistance = reachDistanceAttribute != null ? reachDistanceAttribute.getValue() : 5.0D;
         if (pPlayer.isCreative()) {
             reachDistance -= 0.5D;
@@ -413,7 +440,7 @@ public class GrillBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
         if (pLevel.getBlockEntity(pPos) instanceof GrillBlockEntity grillBlockEntity) {
             var campfireState = grillBlockEntity.getCampfireData().toBlockState();
             if (isCampfire(campfireState)) {
-                return Shapes.or(pBaseShape, campfireState.getBlock().getShape(campfireState, pLevel, pPos, pContext));
+                return Shapes.or(pBaseShape, Shapes.block());
             }
         }
         return pBaseShape;
@@ -444,6 +471,12 @@ public class GrillBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
         return pStack != null && pStack.getItem() instanceof BlockItem blockItem && isCampfire(blockItem.getBlock().defaultBlockState());
     }
 
+    public static final MapCodec<GrillBlock> CODEC = simpleCodec(GrillBlock::new);
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return CODEC;
+    }
+
     @Override
     @SuppressWarnings("deprecation")
     public RenderShape getRenderShape(BlockState pState) {
@@ -467,9 +500,9 @@ public class GrillBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
             }
         }
         if (pLevel.getBlockEntity(pPos) instanceof GrillBlockEntity grillBlockEntity) {
-            var newCampfireData = grillBlockEntity.getCampfireData().copy();
+            var newCampfireData = grillBlockEntity.getCampfireData().copy(pLevel.registryAccess());
             newCampfireData.lit = false;
-            grillBlockEntity.setCampfireData(newCampfireData);
+            grillBlockEntity.setCampfireData(newCampfireData,pLevel.registryAccess());
         }
         pLevel.gameEvent(pEntity, GameEvent.BLOCK_CHANGE, pPos);
     }

@@ -1,25 +1,28 @@
 package com.sihenzhang.simplebbq.data.recipes;
 
-import com.google.gson.JsonObject;
-import com.sihenzhang.simplebbq.SimpleBBQRegistry;
-import net.minecraft.advancements.CriterionTriggerInstance;
-import net.minecraft.data.recipes.FinishedRecipe;
+import com.sihenzhang.simplebbq.recipe.SkeweringRecipe;
+import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementRequirements;
+import net.minecraft.advancements.AdvancementRewards;
+import net.minecraft.advancements.Criterion;
+import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
 import net.minecraft.data.recipes.RecipeBuilder;
+import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
-import java.util.function.Consumer;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class SkeweringRecipeBuilder implements RecipeBuilder {
     private final Item result;
     private final int resultCount;
     private final Ingredient ingredient;
     private final int ingredientCount;
+    protected final Map<String, Criterion<?>> criteria = new LinkedHashMap<>();
 
     public SkeweringRecipeBuilder(ItemLike result, int resultCount, Ingredient ingredient, int ingredientCount) {
         this.result = result.asItem();
@@ -45,7 +48,8 @@ public class SkeweringRecipeBuilder implements RecipeBuilder {
     }
 
     @Override
-    public RecipeBuilder unlockedBy(String pCriterionName, CriterionTriggerInstance pCriterionTrigger) {
+    public RecipeBuilder unlockedBy(String name, Criterion<?> criterion) {
+        this.criteria.put(name, criterion);
         return this;
     }
 
@@ -60,63 +64,13 @@ public class SkeweringRecipeBuilder implements RecipeBuilder {
     }
 
     @Override
-    public void save(Consumer<FinishedRecipe> pFinishedRecipeConsumer, ResourceLocation pRecipeId) {
-        pFinishedRecipeConsumer.accept(new Result(pRecipeId, ingredient, ingredientCount, result, resultCount));
+    public void save(RecipeOutput recipeOutput, ResourceLocation pRecipeId) {
+        Advancement.Builder advancement = recipeOutput.advancement()
+                .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(pRecipeId))
+                .rewards(AdvancementRewards.Builder.recipe(pRecipeId))
+                .requirements(AdvancementRequirements.Strategy.OR);
+        this.criteria.forEach(advancement::addCriterion);
+        recipeOutput.accept(pRecipeId,new SkeweringRecipe(ingredient,resultCount,result.getDefaultInstance()),advancement.build(pRecipeId.withPrefix("recipes/")));
     }
 
-    public static class Result implements FinishedRecipe {
-        private final ResourceLocation id;
-        private final Ingredient ingredient;
-        private final int ingredientCount;
-        private final Item result;
-        private final int resultCount;
-
-        public Result(ResourceLocation id, Ingredient ingredient, int ingredientCount, Item result, int resultCount) {
-            this.id = id;
-            this.ingredient = ingredient;
-            this.ingredientCount = ingredientCount;
-            this.result = result;
-            this.resultCount = resultCount;
-        }
-
-        @Override
-        public void serializeRecipeData(JsonObject pJson) {
-            if (ingredientCount > 1) {
-                var ingredientWithCount = new JsonObject();
-                ingredientWithCount.add("ingredient", ingredient.toJson());
-                ingredientWithCount.addProperty("count", ingredientCount);
-                pJson.add("ingredient", ingredientWithCount);
-            } else {
-                pJson.add("ingredient", ingredient.toJson());
-            }
-            var resultObject = new JsonObject();
-            resultObject.addProperty("item", ForgeRegistries.ITEMS.getKey(result).toString());
-            if (resultCount > 1) {
-                resultObject.addProperty("count", resultCount);
-            }
-            pJson.add("result", resultObject);
-        }
-
-        @Override
-        public ResourceLocation getId() {
-            return id;
-        }
-
-        @Override
-        public RecipeSerializer<?> getType() {
-            return SimpleBBQRegistry.SKEWERING_RECIPE_SERIALIZER.get();
-        }
-
-        @Nullable
-        @Override
-        public JsonObject serializeAdvancement() {
-            return null;
-        }
-
-        @Nullable
-        @Override
-        public ResourceLocation getAdvancementId() {
-            return null;
-        }
-    }
 }

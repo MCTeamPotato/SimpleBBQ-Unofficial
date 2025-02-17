@@ -1,5 +1,6 @@
 package com.sihenzhang.simplebbq.block;
 
+import com.mojang.serialization.MapCodec;
 import com.sihenzhang.simplebbq.block.entity.SkeweringTableBlockEntity;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.core.BlockPos;
@@ -7,7 +8,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
@@ -18,19 +21,16 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.items.wrapper.RecipeWrapper;
+import net.neoforged.neoforge.items.ItemStackHandler;
+import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
 
 import javax.annotation.Nullable;
 
 public class SkeweringTableBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
-    public SkeweringTableBlock() {
-        super(Properties.of()
-            .mapColor(MapColor.WOOD)
-            .strength(2.5F)
-            .sound(SoundType.WOOD)
-            .noOcclusion());
+    public SkeweringTableBlock(Properties properties) {
+        super(properties);
         this.registerDefaultState(stateDefinition.any().setValue(FACING, Direction.NORTH));
     }
 
@@ -42,27 +42,27 @@ public class SkeweringTableBlock extends BaseEntityBlock {
      */
     @Override
     @SuppressWarnings("deprecation")
-    public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
+    public ItemInteractionResult useItemOn(ItemStack stack, BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
         if (pLevel.getBlockEntity(pPos) instanceof SkeweringTableBlockEntity skeweringTableBlockEntity) {
             var stackInHand = pPlayer.getItemInHand(pHand);
 
             // try to remove
             if (pHand == InteractionHand.MAIN_HAND && stackInHand.isEmpty()) {
                 if (!pLevel.isClientSide() && skeweringTableBlockEntity.removeFood(pPlayer, pHand)) {
-                    return InteractionResult.SUCCESS;
+                    return ItemInteractionResult.SUCCESS;
                 }
-                return InteractionResult.CONSUME;
+                return ItemInteractionResult.CONSUME;
             }
 
             // try to place
             if (skeweringTableBlockEntity.canBeSkewered(stackInHand)) {
                 if (!pLevel.isClientSide() && skeweringTableBlockEntity.placeFood(pPlayer, pHand)) {
-                    return InteractionResult.SUCCESS;
+                    return ItemInteractionResult.SUCCESS;
                 }
-                return InteractionResult.CONSUME;
+                return ItemInteractionResult.CONSUME;
             }
         }
-        return InteractionResult.PASS;
+        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 
     @Override
@@ -71,7 +71,10 @@ public class SkeweringTableBlock extends BaseEntityBlock {
         if (!pState.is(pNewState.getBlock())) {
             var blockEntity = pLevel.getBlockEntity(pPos);
             if (blockEntity instanceof SkeweringTableBlockEntity skeweringTableBlockEntity) {
-                Containers.dropContents(pLevel, pPos, new RecipeWrapper(skeweringTableBlockEntity.getInventory()));
+                ItemStackHandler inventory = skeweringTableBlockEntity.getInventory();
+                for(int i = 0; i < inventory.getSlots(); i++) {
+                    Containers.dropItemStack(pLevel, pPos.getX(), pPos.getY(), pPos.getZ(), inventory.getStackInSlot(i));
+                }
             }
             super.onRemove(pState, pLevel, pPos, pNewState, pIsMoving);
         }
@@ -81,6 +84,12 @@ public class SkeweringTableBlock extends BaseEntityBlock {
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext pContext) {
         return this.defaultBlockState().setValue(FACING, pContext.getHorizontalDirection());
+    }
+
+    public static final MapCodec<SkeweringTableBlock> CODEC = simpleCodec(SkeweringTableBlock::new);
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return CODEC;
     }
 
     @Override

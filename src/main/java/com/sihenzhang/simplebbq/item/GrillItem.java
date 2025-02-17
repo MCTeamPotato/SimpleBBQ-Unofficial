@@ -29,7 +29,7 @@ public class GrillItem extends BlockItem {
             if (placeResult.consumesAction()) {
                 var blockEntity = level.getBlockEntity(pos);
                 if (blockEntity instanceof GrillBlockEntity grillBlockEntity) {
-                    grillBlockEntity.initCampfireState(campfireData);
+                    grillBlockEntity.initCampfireState(campfireData,level.registryAccess());
                 }
                 return placeResult;
             } else {

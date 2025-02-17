@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": {
+      "tag": "minecraft:planks"
+    },
+    "_": {
+      "item": "minecraft:smooth_stone_slab"
+    }
+  },
+  "pattern": [
+    "__",
+    "##",
+    "##"
+  ],
+  "result": {
+    "count": 1,
+    "id": "simplebbq:skewering_table"
+  }
+}

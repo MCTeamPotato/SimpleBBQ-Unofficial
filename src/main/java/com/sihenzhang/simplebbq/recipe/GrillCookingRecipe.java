@@ -1,22 +1,30 @@
 package com.sihenzhang.simplebbq.recipe;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.sihenzhang.simplebbq.SimpleBBQRegistry;
-import com.sihenzhang.simplebbq.util.JsonUtils;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.CookingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 
-import javax.annotation.Nullable;
-
 public class GrillCookingRecipe extends AbstractCookingRecipe {
-    public GrillCookingRecipe(ResourceLocation pId, String pGroup, Ingredient pIngredient, ItemStack pResult, int pCookingTime) {
-        super(SimpleBBQRegistry.GRILL_COOKING_RECIPE_TYPE.get(), pId, pGroup, CookingBookCategory.MISC, pIngredient, pResult, 0.0F, pCookingTime);
+
+    public GrillCookingRecipe(String pGroup, Ingredient pIngredient, ItemStack pResult, int pCookingTime) {
+        super(SimpleBBQRegistry.GRILL_COOKING_RECIPE_TYPE.get(), pGroup, CookingBookCategory.MISC, pIngredient, pResult, 0.0F, pCookingTime);
+    }
+
+    public Ingredient getIngredient() {
+        return ingredient;
+    }
+
+    public ItemStack getResult() {
+        return result;
     }
 
     @Override
@@ -35,31 +43,31 @@ public class GrillCookingRecipe extends AbstractCookingRecipe {
     }
 
     public static class Serializer implements RecipeSerializer<GrillCookingRecipe> {
-        @Override
-        public GrillCookingRecipe fromJson(ResourceLocation pRecipeId, JsonObject pSerializedRecipe) {
-            var group = GsonHelper.getAsString(pSerializedRecipe, "group", "");
-            var ingredient = JsonUtils.getAsIngredient(pSerializedRecipe, "ingredient");
-            var result = JsonUtils.getAsItemStack(pSerializedRecipe, "result");
-            var cookingTime = GsonHelper.getAsInt(pSerializedRecipe, "cookingtime", 100);
-            return new GrillCookingRecipe(pRecipeId, group, ingredient, result, cookingTime);
-        }
 
-        @Nullable
-        @Override
-        public GrillCookingRecipe fromNetwork(ResourceLocation pRecipeId, FriendlyByteBuf pBuffer) {
-            var group = pBuffer.readUtf();
-            var ingredient = Ingredient.fromNetwork(pBuffer);
-            var result = pBuffer.readItem();
-            var cookingTime = pBuffer.readVarInt();
-            return new GrillCookingRecipe(pRecipeId, group, ingredient, result, cookingTime);
-        }
+        public static final MapCodec<GrillCookingRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            Codec.STRING.fieldOf("group").forGetter(GrillCookingRecipe::getGroup),
+            Ingredient.CODEC.fieldOf("ingredient").forGetter(GrillCookingRecipe::getIngredient),
+            ItemStack.CODEC.fieldOf("result").forGetter(GrillCookingRecipe::getResult),
+            Codec.INT.fieldOf("cookingtime").forGetter(GrillCookingRecipe::getCookingTime)
+        ).apply(instance, GrillCookingRecipe::new));
+
+        public static final StreamCodec<RegistryFriendlyByteBuf, GrillCookingRecipe> STREAM_CODEC =
+                StreamCodec.composite(
+                        ByteBufCodecs.STRING_UTF8,GrillCookingRecipe::getGroup,
+                        Ingredient.CONTENTS_STREAM_CODEC,GrillCookingRecipe::getIngredient,
+                        ItemStack.STREAM_CODEC,GrillCookingRecipe::getResult,
+                        ByteBufCodecs.INT,GrillCookingRecipe::getCookingTime,
+                        GrillCookingRecipe::new
+                );
 
         @Override
-        public void toNetwork(FriendlyByteBuf pBuffer, GrillCookingRecipe pRecipe) {
-            pBuffer.writeUtf(pRecipe.group);
-            pRecipe.ingredient.toNetwork(pBuffer);
-            pBuffer.writeItem(pRecipe.result);
-            pBuffer.writeVarInt(pRecipe.cookingTime);
+        public MapCodec<GrillCookingRecipe> codec() {
+            return CODEC;
+        }
+
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, GrillCookingRecipe> streamCodec() {
+            return STREAM_CODEC;
         }
     }
 }
