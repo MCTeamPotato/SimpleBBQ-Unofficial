@@ -4,13 +4,13 @@ license="MIT" #mandatory
 issueTrackerURL="https://github.com/SihenZhang/SimpleBBQ/issues" #optional
 [[mods]] #mandatory
 modId="simplebbq" #mandatory
-version="${file.jarVersion}" #mandatory
-displayName="Simple BBQ" #mandatory
+version="1.20.1-1.0.2" #mandatory
+displayName="Simple BBQ Unofficial" #mandatory
 #updateJSONURL="https://change.me.example.invalid/updates.json" #optional
 #displayURL="https://change.me.to.your.mods.homepage.example.invalid/" #optional
 logoFile="banner.png" #optional
 #credits="Thanks for this example mod goes to Java" #optional
-authors="Si_hen,VVVHY,idyllicbean,SeraphJack" #optional
+authors="Si_hen, VVVHY, idyllicbean, SeraphJack, TeamPotato" #optional
 description='''
 Relaxing and Enjoyable Barbecue.
 '''
