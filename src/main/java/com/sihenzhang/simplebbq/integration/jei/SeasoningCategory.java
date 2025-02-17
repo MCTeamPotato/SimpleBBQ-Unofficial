@@ -20,6 +20,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -52,17 +53,17 @@ public class SeasoningCategory implements IRecipeCategory<SeasoningRecipe> {
         });
     }
 
-    @Override
-    @SuppressWarnings("removal")
-    public ResourceLocation getUid() {
-        return this.getRecipeType().getUid();
-    }
-
-    @Override
-    @SuppressWarnings("removal")
-    public Class<? extends SeasoningRecipe> getRecipeClass() {
-        return this.getRecipeType().getRecipeClass();
-    }
+//    @Override
+//    @SuppressWarnings("removal")
+//    public ResourceLocation getUid() {
+//        return this.getRecipeType().getUid();
+//    }
+//
+//    @Override
+//    @SuppressWarnings("removal")
+//    public Class<? extends SeasoningRecipe> getRecipeClass() {
+//        return this.getRecipeType().getRecipeClass();
+//    }
 
     @Override
     public RecipeType<SeasoningRecipe> getRecipeType() {
@@ -85,16 +86,16 @@ public class SeasoningCategory implements IRecipeCategory<SeasoningRecipe> {
     }
 
     @Override
-    public void setRecipe(IRecipeLayoutBuilder builder, SeasoningRecipe recipe, IFocusGroup focuses) {
+    public void setRecipe(@NotNull IRecipeLayoutBuilder builder, SeasoningRecipe recipe, @NotNull IFocusGroup focuses) {
         var inputItems = List.of(recipe.getIngredient().getItems());
-        if (inputItems.stream().anyMatch(stack -> focuses.getFocuses(VanillaTypes.ITEM_STACK, RecipeIngredientRole.OUTPUT).anyMatch(focus -> stack.sameItem(focus.getTypedValue().getIngredient())))) {
-            inputItems = inputItems.stream().filter(stack -> focuses.getFocuses(VanillaTypes.ITEM_STACK, RecipeIngredientRole.OUTPUT).anyMatch(focus -> stack.sameItem(focus.getTypedValue().getIngredient()))).toList();
+        if (inputItems.stream().anyMatch(stack -> focuses.getFocuses(VanillaTypes.ITEM_STACK, RecipeIngredientRole.OUTPUT).anyMatch(focus -> stack.is(focus.getTypedValue().getIngredient().getItem())))) {
+            inputItems = inputItems.stream().filter(stack -> focuses.getFocuses(VanillaTypes.ITEM_STACK, RecipeIngredientRole.OUTPUT).anyMatch(focus -> stack.is(focus.getTypedValue().getIngredient().getItem()))).toList();
         }
         builder.addSlot(RecipeIngredientRole.INPUT, 1, 1).addItemStacks(inputItems);
         builder.addSlot(RecipeIngredientRole.INPUT, 50, 1).addIngredients(recipe.getSeasoning());
         var resultItems = cachedResultItems.getUnchecked(recipe);
-        if (resultItems.stream().anyMatch(stack -> focuses.getFocuses(VanillaTypes.ITEM_STACK, RecipeIngredientRole.INPUT).anyMatch(focus -> stack.sameItem(focus.getTypedValue().getIngredient())))) {
-            resultItems = resultItems.stream().filter(stack -> focuses.getFocuses(VanillaTypes.ITEM_STACK, RecipeIngredientRole.INPUT).anyMatch(focus -> stack.sameItem(focus.getTypedValue().getIngredient()))).toList();
+        if (resultItems.stream().anyMatch(stack -> focuses.getFocuses(VanillaTypes.ITEM_STACK, RecipeIngredientRole.INPUT).anyMatch(focus -> stack.is(focus.getTypedValue().getIngredient().getItem())))) {
+            resultItems = resultItems.stream().filter(stack -> focuses.getFocuses(VanillaTypes.ITEM_STACK, RecipeIngredientRole.INPUT).anyMatch(focus -> stack.is(focus.getTypedValue().getIngredient().getItem()))).toList();
         }
         builder.addSlot(RecipeIngredientRole.OUTPUT, 108, 1).addItemStacks(resultItems);
     }

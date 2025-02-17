@@ -41,7 +41,7 @@ public abstract class AbstractCookingWithoutFuelAndXpCategory<T extends Abstract
     }
 
     @Override
-    public Component getTitle() {
+    public @NotNull Component getTitle() {
         return title;
     }
 
