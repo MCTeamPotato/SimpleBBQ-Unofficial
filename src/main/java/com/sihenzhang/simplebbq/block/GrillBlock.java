@@ -18,6 +18,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageSources;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -71,7 +72,7 @@ public class GrillBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
     public GrillBlock() {
-        super(Properties.of(Material.METAL, MaterialColor.NONE).requiresCorrectToolForDrops().strength(5.0F, 6.0F).sound(SoundType.LANTERN).lightLevel(state -> state.getValue(LIT) ? 15 : 0).dynamicShape().noOcclusion());
+        super(Properties.copy(Blocks.IRON_BLOCK).requiresCorrectToolForDrops().strength(5.0F, 6.0F).sound(SoundType.LANTERN).lightLevel(state -> state.getValue(LIT) ? 15 : 0).dynamicShape().noOcclusion());
         this.registerDefaultState(stateDefinition.any().setValue(LIT, false).setValue(WATERLOGGED, false).setValue(FACING, Direction.NORTH));
     }
 
@@ -223,7 +224,7 @@ public class GrillBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                     damage = (float) campfireBlock.fireDamage;
                 }
             }
-            pEntity.hurt(DamageSources.hotFloor, damage);
+            pEntity.hurt(pLevel.damageSources().hotFloor(), damage);
         }
         super.stepOn(pLevel, pPos, pState, pEntity);
     }

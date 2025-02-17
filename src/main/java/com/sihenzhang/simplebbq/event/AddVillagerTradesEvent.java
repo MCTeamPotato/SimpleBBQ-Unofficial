@@ -2,6 +2,7 @@ package com.sihenzhang.simplebbq.event;
 
 import com.sihenzhang.simplebbq.SimpleBBQ;
 import com.sihenzhang.simplebbq.SimpleBBQRegistry;
+import com.sihenzhang.simplebbq.SimpleBBQVillagers;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.npc.VillagerTrades;
 import net.minecraft.world.item.ItemStack;
@@ -18,7 +19,7 @@ public class AddVillagerTradesEvent {
     @SubscribeEvent
     public static void onVillagerTrades(final VillagerTradesEvent event) {
         var profession = event.getType();
-        if (SimpleBBQRegistry.SKEWERMAN.getId().equals(ForgeRegistries.VILLAGER_PROFESSIONS.getKey(profession))) {
+        if (SimpleBBQVillagers.SKEWERMAN.getId().equals(ForgeRegistries.VILLAGER_PROFESSIONS.getKey(profession))) {
             var trades = event.getTrades();
 
             var noviceTrades = trades.get(1);
