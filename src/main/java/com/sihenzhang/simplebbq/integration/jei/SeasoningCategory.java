@@ -54,17 +54,6 @@ public class SeasoningCategory extends BaseCategory<SeasoningRecipe> {
         });
     }
 
-//    @Override
-//    @SuppressWarnings("removal")
-//    public ResourceLocation getUid() {
-//        return this.getRecipeType().getUid();
-//    }
-//
-//    @Override
-//    @SuppressWarnings("removal")
-//    public Class<? extends SeasoningRecipe> getRecipeClass() {
-//        return this.getRecipeType().getRecipeClass();
-//    }
 
     @Override
     public RecipeType<SeasoningRecipe> getRecipeType() {
@@ -74,16 +63,6 @@ public class SeasoningCategory extends BaseCategory<SeasoningRecipe> {
     @Override
     public Component getTitle() {
         return I18nUtils.createIntegrationComponent(ModIntegrationJei.MOD_ID, "category.seasoning");
-    }
-
-//    @Override
-//    public IDrawable getBackground() {
-//        return background;
-//    }
-
-    @Override
-    public IDrawable getIcon() {
-        return icon;
     }
 
     @Override

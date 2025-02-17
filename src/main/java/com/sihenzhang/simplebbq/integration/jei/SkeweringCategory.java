@@ -27,18 +27,6 @@ public class SkeweringCategory extends BaseCategory<SkeweringRecipe> {
         ,guiHelper.createDrawableIngredient(VanillaTypes.ITEM_STACK, SimpleBBQRegistry.SKEWERING_TABLE_BLOCK_ITEM.get().getDefaultInstance()));
     }
 
-//    @Override
-//    @SuppressWarnings("removal")
-//    public ResourceLocation getUid() {
-//        return this.getRecipeType().getUid();
-//    }
-//
-//    @Override
-//    @SuppressWarnings("removal")
-//    public Class<? extends SkeweringRecipe> getRecipeClass() {
-//        return this.getRecipeType().getRecipeClass();
-//    }
-
     @Override
     public RecipeType<SkeweringRecipe> getRecipeType() {
         return RECIPE_TYPE;
@@ -47,16 +35,6 @@ public class SkeweringCategory extends BaseCategory<SkeweringRecipe> {
     @Override
     public Component getTitle() {
         return I18nUtils.createIntegrationComponent(ModIntegrationJei.MOD_ID, "category.skewering");
-    }
-
-//    @Override
-//    public IDrawable getBackground() {
-//        return background;
-//    }
-
-    @Override
-    public IDrawable getIcon() {
-        return icon;
     }
 
     @Override

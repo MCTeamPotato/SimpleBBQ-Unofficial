@@ -16,9 +16,23 @@ public abstract class BaseCategory<T> implements IRecipeCategory<T> {
         this.icon = icon;
     }
 
+    @Override
+    public IDrawable getIcon() {
+        return icon;
+    }
 
     @Override
     public void draw(T recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
         this.background.draw(guiGraphics);
+    }
+
+    @Override
+    public int getWidth() {
+        return background.getWidth();
+    }
+
+    @Override
+    public int getHeight() {
+        return background.getHeight();
     }
 }
