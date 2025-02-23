@@ -107,7 +107,7 @@ public class GrillBlockEntity extends BlockEntity {
                             continue;
                         }
                         var result = cookingRecipe.value().assemble(new SingleRecipeInput(stackInSlot), pLevel.registryAccess());
-                        CompoundTag compoundTag = stackInSlot.get(DataComponents.CUSTOM_DATA).copyTag();
+                        CompoundTag compoundTag = stackInSlot.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
                         CompoundTag seasoningTag = compoundTag.getCompound("Seasoning");
                         if (seasoningTag != null) {
                             seasoningTag.putBoolean("HasEffect", true);

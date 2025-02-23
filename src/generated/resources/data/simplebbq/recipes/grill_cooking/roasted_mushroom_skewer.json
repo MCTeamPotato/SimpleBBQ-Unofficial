@@ -1,8 +1,0 @@
-{
-  "type": "simplebbq:grill_cooking",
-  "ingredient": {
-    "item": "simplebbq:mushroom_skewer"
-  },
-  "result": "simplebbq:roasted_mushroom_skewer",
-  "cookingtime": 300
-}

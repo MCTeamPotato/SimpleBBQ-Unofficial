@@ -8,6 +8,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.item.component.CustomData;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -22,7 +23,7 @@ public class SeasoningTooltip {
     @SubscribeEvent
     public static void onTooltip(final ItemTooltipEvent event) {
         var itemStack = event.getItemStack();
-        CompoundTag compoundTag = itemStack.get(DataComponents.CUSTOM_DATA).copyTag();
+        CompoundTag compoundTag = itemStack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
         CompoundTag seasoningTag = compoundTag.getCompound("Seasoning");
         if (seasoningTag != null && seasoningTag.contains("SeasoningList", Tag.TAG_LIST)) {
             var seasoningList = seasoningTag.getList("SeasoningList", Tag.TAG_STRING);

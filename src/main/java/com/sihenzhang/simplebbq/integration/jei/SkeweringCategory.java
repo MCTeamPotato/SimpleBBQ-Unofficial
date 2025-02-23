@@ -27,17 +27,6 @@ public class SkeweringCategory extends BaseCategory<SkeweringRecipe> {
         ,guiHelper.createDrawableIngredient(VanillaTypes.ITEM_STACK, SimpleBBQRegistry.SKEWERING_TABLE_BLOCK_ITEM.get().getDefaultInstance()));
     }
 
-//    @Override
-//    @SuppressWarnings("removal")
-//    public ResourceLocation getUid() {
-//        return this.getRecipeType().getUid();
-//    }
-//
-//    @Override
-//    @SuppressWarnings("removal")
-//    public Class<? extends SkeweringRecipe> getRecipeClass() {
-//        return this.getRecipeType().getRecipeClass();
-//    }
 
     @Override
     public RecipeType<SkeweringRecipe> getRecipeType() {
@@ -49,19 +38,9 @@ public class SkeweringCategory extends BaseCategory<SkeweringRecipe> {
         return I18nUtils.createIntegrationComponent(ModIntegrationJei.MOD_ID, "category.skewering");
     }
 
-//    @Override
-//    public IDrawable getBackground() {
-//        return background;
-//    }
-
-    @Override
-    public IDrawable getIcon() {
-        return icon;
-    }
-
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, SkeweringRecipe recipe, IFocusGroup focuses) {
-        builder.addSlot(RecipeIngredientRole.INPUT, 1, 1).addIngredients(recipe.getIngredients().get(0));
+        builder.addSlot(RecipeIngredientRole.INPUT, 1, 1).addIngredients(recipe.getIngredient());
         builder.addSlot(RecipeIngredientRole.INPUT, 50, 1).addIngredients(Ingredient.of(SimpleBBQItemTags.SKEWER));
         builder.addSlot(RecipeIngredientRole.OUTPUT, 108, 1).addItemStack(RecipeUtil.getResultItem(recipe));
     }

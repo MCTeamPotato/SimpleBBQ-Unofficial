@@ -8,6 +8,7 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.component.CustomData;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.util.FakePlayer;
@@ -18,7 +19,7 @@ public class PlayerEatSeasonedFoodEvent {
     @SubscribeEvent
     public static void onItemUseStart(final LivingEntityUseItemEvent.Start event) {
         var stack = event.getItem();
-        CompoundTag compoundTag = stack.get(DataComponents.CUSTOM_DATA).copyTag();
+        CompoundTag compoundTag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
         CompoundTag seasoningTag = compoundTag.getCompound("Seasoning");
         if (seasoningTag != null && seasoningTag.getBoolean("HasEffect") && seasoningTag.contains("SeasoningList", Tag.TAG_LIST)) {
             var seasoningList = seasoningTag.getList("SeasoningList", Tag.TAG_STRING);
@@ -31,7 +32,7 @@ public class PlayerEatSeasonedFoodEvent {
     @SubscribeEvent
     public static void onItemUseFinish(final LivingEntityUseItemEvent.Finish event) {
         var stack = event.getItem();
-        CompoundTag compoundTag = stack.get(DataComponents.CUSTOM_DATA).copyTag();
+        CompoundTag compoundTag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
         CompoundTag seasoningTag = compoundTag.getCompound("Seasoning");
         if (seasoningTag != null && seasoningTag.getBoolean("HasEffect") && seasoningTag.contains("SeasoningList", Tag.TAG_LIST)) {
             var seasoningList = seasoningTag.getList("SeasoningList", Tag.TAG_STRING);

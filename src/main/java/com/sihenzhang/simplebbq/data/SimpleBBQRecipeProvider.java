@@ -86,7 +86,7 @@ public class SimpleBBQRecipeProvider extends RecipeProvider {
         grillCookingRecipe(recipeOutput, pIngredient, pResult.toStack(), pCookingTime);
     }
     protected static void grillCookingRecipe(RecipeOutput recipeOutput, ItemLike pIngredient, ItemStack pResult, int pCookingTime) {
-        GrillCookingRecipeBuilder.cooking(Ingredient.of(pIngredient), pResult, pCookingTime).save(recipeOutput, getSimpleRecipeName("grill_cooking", pResult.getItem()));
+        GrillCookingRecipeBuilder.cooking(Ingredient.of(pIngredient), pResult, pCookingTime).group("grill").save(recipeOutput, getSimpleRecipeName("grill_cooking", pResult.getItem()));
     }
 
     protected static void skeweringRecipe(RecipeOutput recipeOutput, ItemLike pIngredient, int pIngredientCount, ItemLike pResult, int pResultCount) {

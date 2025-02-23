@@ -44,21 +44,6 @@ public abstract class AbstractCookingWithoutFuelAndXpCategory<T extends Abstract
     }
 
     @Override
-    public int getWidth() {
-        return background.getWidth();
-    }
-
-    @Override
-    public int getHeight() {
-        return background.getHeight();
-    }
-
-    @Override
-    public IDrawable getIcon() {
-        return icon;
-    }
-
-    @Override
     public void setRecipe(IRecipeLayoutBuilder builder, T recipe, IFocusGroup focuses) {
         builder.addSlot(RecipeIngredientRole.INPUT, 1, 1).addIngredients(recipe.getIngredients().get(0));
         builder.addSlot(RecipeIngredientRole.OUTPUT, 61, 9).addItemStack(recipe.getResultItem(Minecraft.getInstance().level.registryAccess()));

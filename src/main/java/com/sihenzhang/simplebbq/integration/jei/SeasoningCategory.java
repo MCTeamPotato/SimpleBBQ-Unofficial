@@ -45,7 +45,7 @@ public class SeasoningCategory extends BaseCategory<SeasoningRecipe> {
             public List<ItemStack> load(SeasoningRecipe key) {
                 return Arrays.stream(key.getIngredient().getItems()).map(stack -> {
                     var copiedStack = stack.copy();
-                    CompoundTag compoundTag = stack.get(DataComponents.CUSTOM_DATA).copyTag();
+                    CompoundTag compoundTag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
                     CompoundTag seasoningTag = compoundTag.getCompound("Seasoning");
                     var seasoningList = seasoningTag.getList("SeasoningList", Tag.TAG_STRING);
                     seasoningList.add(StringTag.valueOf(key.getName().toLowerCase(Locale.ROOT)));
@@ -60,17 +60,6 @@ public class SeasoningCategory extends BaseCategory<SeasoningRecipe> {
         });
     }
 
-//    @Override
-//    @SuppressWarnings("removal")
-//    public ResourceLocation getUid() {
-//        return this.getRecipeType().getUid();
-//    }
-//
-//    @Override
-//    @SuppressWarnings("removal")
-//    public Class<? extends SeasoningRecipe> getRecipeClass() {
-//        return this.getRecipeType().getRecipeClass();
-//    }
 
     @Override
     public RecipeType<SeasoningRecipe> getRecipeType() {
@@ -80,16 +69,6 @@ public class SeasoningCategory extends BaseCategory<SeasoningRecipe> {
     @Override
     public Component getTitle() {
         return I18nUtils.createIntegrationComponent(ModIntegrationJei.MOD_ID, "category.seasoning");
-    }
-
-//    @Override
-//    public IDrawable getBackground() {
-//        return background;
-//    }
-
-    @Override
-    public IDrawable getIcon() {
-        return icon;
     }
 
     @Override

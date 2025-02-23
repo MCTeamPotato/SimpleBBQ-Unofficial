@@ -20,19 +20,6 @@ public class CampfireCookingOnGrillCategory extends AbstractCookingWithoutFuelAn
         super(guiHelper, new DrawableDoubleItemStack(SimpleBBQRegistry.GRILL_BLOCK_ITEM.get().getDefaultInstance(), Items.CAMPFIRE.getDefaultInstance()), "category.campfire_cooking_on_grill", 400);
     }
 
-//    @Override
-//    @SuppressWarnings("removal")
-//    public ResourceLocation getUid() {
-//        return this.getRecipeType().getUid();
-//    }
-//
-//
-//    @Override
-//    @SuppressWarnings("removal")
-//    public Class<? extends CampfireCookingRecipe> getRecipeClass() {
-//        return this.getRecipeType().getRecipeClass();
-//    }
-
     @Override
     public RecipeType<CampfireCookingRecipe> getRecipeType() {
         return RECIPE_TYPE;

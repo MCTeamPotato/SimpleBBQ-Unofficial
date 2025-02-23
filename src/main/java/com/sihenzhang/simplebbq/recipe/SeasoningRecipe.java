@@ -41,7 +41,7 @@ public class SeasoningRecipe implements Recipe<RecipeInput> {
         if (!ingredient.test(inputStack) || !seasoning.test(seasoningStack)) {
             return false;
         }
-        CompoundTag compoundTag = inputStack.get(DataComponents.CUSTOM_DATA).copyTag();
+        CompoundTag compoundTag = inputStack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
         CompoundTag seasoningTag = compoundTag.getCompound("Seasoning");
         if (seasoningTag != null && seasoningTag.contains("SeasoningList", Tag.TAG_LIST)) {
             var seasoningList = seasoningTag.getList("SeasoningList", Tag.TAG_STRING);
@@ -57,7 +57,7 @@ public class SeasoningRecipe implements Recipe<RecipeInput> {
     @Override
     public ItemStack assemble(RecipeInput recipeInput, HolderLookup.Provider provider) {
         var result = recipeInput.getItem(0).copy();
-        CompoundTag compoundTag = result.get(DataComponents.CUSTOM_DATA).copyTag();
+        CompoundTag compoundTag = result.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
         CompoundTag seasoningTag = compoundTag.getCompound("Seasoning");
         var seasoningList = seasoningTag.getList("SeasoningList", Tag.TAG_STRING);
         seasoningList.add(StringTag.valueOf(name.toLowerCase(Locale.ROOT)));
