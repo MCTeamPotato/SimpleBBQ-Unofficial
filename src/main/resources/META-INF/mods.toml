@@ -4,7 +4,7 @@ license="MIT" #mandatory
 issueTrackerURL="https://github.com/SihenZhang/SimpleBBQ/issues" #optional
 [[mods]] #mandatory
 modId="simplebbq" #mandatory
-version="1.20.1-1.0.2" #mandatory
+version="1.20.1-1.0.3" #mandatory
 displayName="Simple BBQ Unofficial" #mandatory
 #updateJSONURL="https://change.me.example.invalid/updates.json" #optional
 #displayURL="https://change.me.to.your.mods.homepage.example.invalid/" #optional
