@@ -1,36 +1,28 @@
 package com.sihenzhang.simplebbq.data;
 
-import com.sihenzhang.simplebbq.SimpleBBQ;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.data.DataGenerator;
-import net.minecraft.data.PackOutput;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.data.event.GatherDataEvent;
+import com.sihenzhang.simplebbq.thirdparty.datagen.DataGenerators;
+import io.github.fabricators_of_create.porting_lib.data.ExistingFileHelper;
+import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 
-import java.util.concurrent.CompletableFuture;
+public class DataGen implements DataGeneratorEntrypoint {
 
-@EventBusSubscriber(modid = SimpleBBQ.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
-public class DataGen {
-    @SubscribeEvent
-    public static void gatherData(final GatherDataEvent event) {
-        DataGenerator generator = event.getGenerator();
-        PackOutput packOutput = generator.getPackOutput();
-        var helper = event.getExistingFileHelper();
-        var provider = event.getLookupProvider();
+    @Override
+    public void onInitializeDataGenerator(FabricDataGenerator fabricDataGenerator) {
+        FabricDataGenerator.Pack pack = fabricDataGenerator.createPack();
+        ExistingFileHelper existingFileHelper = ExistingFileHelper.withResourcesFromArg();
+        DataGenerators generator = new DataGenerators(pack, existingFileHelper);
 
-        if (event.includeServer()) {
-            var blockTagsProvider = new SimpleBBQBlockTagsProvider(packOutput, provider, helper);
-            generator.addProvider(event.includeServer(), blockTagsProvider);
-            generator.addProvider(event.includeServer(), new SimpleBBQItemTagsProvider(packOutput, provider, blockTagsProvider.contentsGetter(), helper));
-            generator.addProvider(event.includeServer(), new SimpleBBQLootTableProvider(packOutput,provider));
-            generator.addProvider(event.includeServer(), new SimpleBBQRecipeProvider(packOutput,provider));
-        }
-        
-        if (event.includeClient()) {
-            var blockStateProvider = new SimpleBBQBlockStateProvider(packOutput, helper);
-            generator.addProvider(event.includeClient(), blockStateProvider);
-            generator.addProvider(event.includeClient(), new SimpleBBQItemModelProvider(packOutput, helper));
-        }
+        var blockTagsProvider = generator.addProvider(SimpleBBQBlockTagsProvider::new);
+        generator.addProvider((output, registries, helper) -> {
+            return new SimpleBBQItemTagsProvider(output, registries, blockTagsProvider);
+        });
+        generator.addProvider(SimpleBBQLootTableProvider::new);
+        generator.addProvider(SimpleBBQRecipeProvider::new);
+
+
+
+        generator.addProvider(SimpleBBQBlockStateProvider::new);
+        generator.addProvider(SimpleBBQItemModelProvider::new);
     }
 }

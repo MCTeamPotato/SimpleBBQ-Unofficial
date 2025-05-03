@@ -1,8 +1,8 @@
 package com.sihenzhang.simplebbq.levelgen;
 
 import com.mojang.datafixers.util.Pair;
-import com.sihenzhang.simplebbq.SimpleBBQ;
 import com.sihenzhang.simplebbq.util.RLUtils;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.Util;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
@@ -11,35 +11,32 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.levelgen.structure.pools.SinglePoolElement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorList;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 
 import java.util.ArrayList;
 
-@EventBusSubscriber(modid = SimpleBBQ.MOD_ID)
 public class VillageStructures {
     private static final ResourceKey<StructureProcessorList> EMPTY_PROCESSOR_LIST_KEY = ResourceKey.create(Registries.PROCESSOR_LIST, RLUtils.createVanillaRL("empty"));
 
-    @SubscribeEvent
-    public static void addNewVillageBuilding(final ServerAboutToStartEvent event) {
-        var registryHolder = event.getServer().registryAccess();
-        var templatePools = registryHolder.registryOrThrow(Registries.TEMPLATE_POOL);
-        var processorLists = registryHolder.registryOrThrow(Registries.PROCESSOR_LIST);
+    public static void addNewVillageBuilding() {
+        ServerLifecycleEvents.SERVER_STARTED.register(server -> {
+            var registryHolder = server.registryAccess();
+            var templatePools = registryHolder.registryOrThrow(Registries.TEMPLATE_POOL);
+            var processorLists = registryHolder.registryOrThrow(Registries.PROCESSOR_LIST);
 
-        var plainsPoolRL = RLUtils.createVanillaRL("village/plains/houses");
-        var savannaPoolRL = RLUtils.createVanillaRL("village/savanna/houses");
-        var desertPoolRL = RLUtils.createVanillaRL("village/desert/houses");
-        var taigaPoolRL = RLUtils.createVanillaRL("village/taiga/houses");
-        var snowyPoolRL = RLUtils.createVanillaRL("village/snowy/houses");
+            var plainsPoolRL = RLUtils.createVanillaRL("village/plains/houses");
+            var savannaPoolRL = RLUtils.createVanillaRL("village/savanna/houses");
+            var desertPoolRL = RLUtils.createVanillaRL("village/desert/houses");
+            var taigaPoolRL = RLUtils.createVanillaRL("village/taiga/houses");
+            var snowyPoolRL = RLUtils.createVanillaRL("village/snowy/houses");
 
-        addBuildingToPool(templatePools, processorLists, plainsPoolRL, RLUtils.createRL("village/houses/plains_bbq_camp_1"), 1);
-        addBuildingToPool(templatePools, processorLists, plainsPoolRL, RLUtils.createRL("village/houses/plains_bbq_camp_2"), 1);
-        addBuildingToPool(templatePools, processorLists, savannaPoolRL, RLUtils.createRL("village/houses/savanna_bbq_camp_1"), 2);
-        addBuildingToPool(templatePools, processorLists, desertPoolRL, RLUtils.createRL("village/houses/desert_bbq_camp_1"), 2);
-        addBuildingToPool(templatePools, processorLists, taigaPoolRL, RLUtils.createRL("village/houses/taiga_bbq_camp_1"), 2);
-        addBuildingToPool(templatePools, processorLists, snowyPoolRL, RLUtils.createRL("village/houses/snowy_bbq_camp_1"), 3);
-        addBuildingToPool(templatePools, processorLists, snowyPoolRL, RLUtils.createRL("village/houses/snowy_bbq_camp_2"), 1);
+            addBuildingToPool(templatePools, processorLists, plainsPoolRL, RLUtils.createRL("village/houses/plains_bbq_camp_1"), 1);
+            addBuildingToPool(templatePools, processorLists, plainsPoolRL, RLUtils.createRL("village/houses/plains_bbq_camp_2"), 1);
+            addBuildingToPool(templatePools, processorLists, savannaPoolRL, RLUtils.createRL("village/houses/savanna_bbq_camp_1"), 2);
+            addBuildingToPool(templatePools, processorLists, desertPoolRL, RLUtils.createRL("village/houses/desert_bbq_camp_1"), 2);
+            addBuildingToPool(templatePools, processorLists, taigaPoolRL, RLUtils.createRL("village/houses/taiga_bbq_camp_1"), 2);
+            addBuildingToPool(templatePools, processorLists, snowyPoolRL, RLUtils.createRL("village/houses/snowy_bbq_camp_1"), 3);
+            addBuildingToPool(templatePools, processorLists, snowyPoolRL, RLUtils.createRL("village/houses/snowy_bbq_camp_2"), 1);
+        });
     }
 
     public static void addBuildingToPool(Registry<StructureTemplatePool> templatePoolRegistry, Registry<StructureProcessorList> processorListRegistry, ResourceLocation poolRL, ResourceLocation nbtPieceRL, int weight) {

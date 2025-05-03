@@ -1,63 +1,54 @@
 package com.sihenzhang.simplebbq;
 
+import com.sihenzhang.simplebbq.levelgen.VillageStructures;
+import com.sihenzhang.simplebbq.util.RLUtils;
+import fuzs.forgeconfigapiport.fabric.api.neoforge.v4.NeoForgeConfigRegistry;
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.minecraft.core.Registry;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.ModLoadingContext;
-import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
-import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
 
-@Mod(SimpleBBQ.MOD_ID)
-public class SimpleBBQ {
+public class SimpleBBQ implements ModInitializer {
     public static final String MOD_ID = "simplebbq";
 
-    public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MOD_ID);
+    public static final ResourceKey<CreativeModeTab> TAB_KEY = ResourceKey.create(Registries.CREATIVE_MODE_TAB, RLUtils.createRL("tab"));
 
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> TAB = CREATIVE_MODE_TABS.register("tab", () ->
-        CreativeModeTab.builder()
+    public static final CreativeModeTab TAB = FabricItemGroup.builder()
             .title(Component.translatable("itemGroup." + MOD_ID))
-            .icon(() -> new ItemStack(SimpleBBQRegistry.GRILL_BLOCK_ITEM.get()))
+            .icon(() -> new ItemStack(SimpleBBQRegistry.GRILL_BLOCK_ITEM))
             .displayItems((parameters, output) -> {
                 // TODO: 还没添加完，还有那个lang文件也没添加⬆️，还有许多地方的.tab()没修改 [SimpleBBQRegistry]
-                SimpleBBQRegistry.ITEMS.getEntries().forEach(item -> output.accept(item.get()));
+                SimpleBBQRegistry.ITEMS.values().forEach(item -> output.accept(item));
             })
-            .build()
-    );
+            .build();
 
-    public SimpleBBQ(IEventBus modEventBus, ModContainer modContainer) {
+    @Override
+    public void onInitialize() {
+        NeoForgeConfigRegistry.INSTANCE.register(MOD_ID, ModConfig.Type.COMMON, SimpleBBQConfig.COMMON_CONFIG);
 
-        modContainer.registerConfig(ModConfig.Type.COMMON, SimpleBBQConfig.COMMON_CONFIG);
+        Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, TAB_KEY, TAB);
 
-        CREATIVE_MODE_TABS.register(modEventBus);
+        SimpleBBQRegistry.initialize();
+        SimpleBBQVillagers.initialize();
+        SimpleBBQEvents.initialize();
+        VillageStructures.addNewVillageBuilding();
 
-        SimpleBBQRegistry.ITEMS.register(modEventBus);
-        SimpleBBQRegistry.BLOCKS.register(modEventBus);
-        SimpleBBQRegistry.BLOCK_ENTITIES.register(modEventBus);
-        SimpleBBQRegistry.PARTICLE_TYPES.register(modEventBus);
-        SimpleBBQVillagers.register(modEventBus);
-        //SimpleBBQRegistry.POI_TYPES.register(modEventBus);
-        //SimpleBBQRegistry.PROFESSIONS.register(modEventBus);
-        SimpleBBQRegistry.RECIPE_TYPES.register(modEventBus);
-        SimpleBBQRegistry.RECIPE_SERIALIZERS.register(modEventBus);
-
-
-        modEventBus.addListener(this::addCreative);
-    }
-
-    private void addCreative(BuildCreativeModeTabContentsEvent event) {
-        if (event.getTabKey() == CreativeModeTabs.FOOD_AND_DRINKS) {
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.FOOD_AND_DRINKS).register(entries -> {
             // 添加食物类物品到食物和饮料标签页
-            SimpleBBQRegistry.ITEMS.getEntries().stream()
-                .map(DeferredHolder::get)
-                .filter(item -> item.getFoodProperties(item.getDefaultInstance(), null) != null)
-                .forEach(event::accept);
-        }
+            SimpleBBQRegistry.ITEMS.forEach((id, item) -> {
+                if (item.components().has(DataComponents.FOOD)) {
+                    entries.accept(item);
+                }
+            });
+        });
     }
 }

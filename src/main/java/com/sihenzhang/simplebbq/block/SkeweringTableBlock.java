@@ -2,12 +2,11 @@ package com.sihenzhang.simplebbq.block;
 
 import com.mojang.serialization.MapCodec;
 import com.sihenzhang.simplebbq.block.entity.SkeweringTableBlockEntity;
-import net.minecraft.client.resources.model.Material;
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandlerContainer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -19,10 +18,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
-import net.neoforged.neoforge.items.ItemStackHandler;
-import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
 
 import javax.annotation.Nullable;
 
@@ -38,7 +34,7 @@ public class SkeweringTableBlock extends BaseEntityBlock {
      * Place the food on the Skewering Table or take the food away from the Skewering Table.
      * But before that, it will try to skewer the food on the Skewering Table.
      *
-     * @see com.sihenzhang.simplebbq.event.PlayerUseSkeweringTableToSkewerEvent
+     * @see com.sihenzhang.simplebbq.SimpleBBQEvents#onBlockRightClick()
      */
     @Override
     @SuppressWarnings("deprecation")
@@ -71,8 +67,8 @@ public class SkeweringTableBlock extends BaseEntityBlock {
         if (!pState.is(pNewState.getBlock())) {
             var blockEntity = pLevel.getBlockEntity(pPos);
             if (blockEntity instanceof SkeweringTableBlockEntity skeweringTableBlockEntity) {
-                ItemStackHandler inventory = skeweringTableBlockEntity.getInventory();
-                for(int i = 0; i < inventory.getSlots(); i++) {
+                ItemStackHandlerContainer inventory = skeweringTableBlockEntity.getInventory();
+                for(int i = 0; i < inventory.getSlots().size(); i++) {
                     Containers.dropItemStack(pLevel, pPos.getX(), pPos.getY(), pPos.getZ(), inventory.getStackInSlot(i));
                 }
             }

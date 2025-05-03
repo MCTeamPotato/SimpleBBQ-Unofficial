@@ -1,26 +1,23 @@
 package com.sihenzhang.simplebbq.data;
 
-import com.sihenzhang.simplebbq.SimpleBBQ;
 import com.sihenzhang.simplebbq.SimpleBBQRegistry;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.PackOutput;
 import net.minecraft.tags.BlockTags;
-import net.neoforged.neoforge.common.data.BlockTagsProvider;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
-import javax.annotation.Nullable;
 import java.util.concurrent.CompletableFuture;
 
-public class SimpleBBQBlockTagsProvider extends BlockTagsProvider {
-    public SimpleBBQBlockTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, @Nullable ExistingFileHelper existingFileHelper) {
-        super(output, lookupProvider, SimpleBBQ.MOD_ID, existingFileHelper);
+public class SimpleBBQBlockTagsProvider extends FabricTagProvider.BlockTagProvider {
+    public SimpleBBQBlockTagsProvider(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
+        super(output, lookupProvider);
     }
 
     @Override
     protected void addTags(HolderLookup.Provider provider) {
-        this.tag(BlockTags.MINEABLE_WITH_PICKAXE).add(SimpleBBQRegistry.GRILL_BLOCK.get());
-        this.tag(BlockTags.NEEDS_STONE_TOOL).add(SimpleBBQRegistry.GRILL_BLOCK.get());
-        this.tag(BlockTags.MINEABLE_WITH_AXE).add(SimpleBBQRegistry.SKEWERING_TABLE_BLOCK.get());
+        this.getOrCreateTagBuilder(BlockTags.MINEABLE_WITH_PICKAXE).add(SimpleBBQRegistry.GRILL_BLOCK);
+        this.getOrCreateTagBuilder(BlockTags.NEEDS_STONE_TOOL).add(SimpleBBQRegistry.GRILL_BLOCK);
+        this.getOrCreateTagBuilder(BlockTags.MINEABLE_WITH_AXE).add(SimpleBBQRegistry.SKEWERING_TABLE_BLOCK);
     }
 
     @Override

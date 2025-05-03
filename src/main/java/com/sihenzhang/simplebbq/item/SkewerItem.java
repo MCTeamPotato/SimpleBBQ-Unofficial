@@ -1,6 +1,6 @@
 package com.sihenzhang.simplebbq.item;
 
-import com.sihenzhang.simplebbq.SimpleBBQ;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.food.FoodProperties;
@@ -50,7 +50,7 @@ public class SkewerItem extends Item {
         }
 
         public Builder(Item baseItem, int nutritionModifier, float saturationModifier) {
-            var baseFoodProperties = baseItem.getFoodProperties(baseItem.getDefaultInstance(), null);
+            var baseFoodProperties = baseItem.components().get(DataComponents.FOOD);
             if (baseFoodProperties != null) {
                 this.foodBuilder = this.foodBuilder.nutrition(baseFoodProperties.nutrition() + nutritionModifier).saturationModifier(baseFoodProperties.saturation() + saturationModifier);
                 //TODO: 实现注释掉的功能
@@ -64,9 +64,9 @@ public class SkewerItem extends Item {
 //                if (baseFoodProperties.isFastFood()) {
 //                    this.duration = 16;
 //                }
-//                if (!baseFoodProperties.getEffects().isEmpty()) {
-//                    baseFoodProperties.getEffects().forEach(e -> this.foodBuilder = this.foodBuilder.effect(e::getFirst, e.getSecond()));
-//                }
+                if (!baseFoodProperties.effects().isEmpty()) {
+                    baseFoodProperties.effects().forEach(e -> this.foodBuilder = this.foodBuilder.effect(e.effect(), e.probability()));
+                }
             }
         }
 
@@ -96,7 +96,7 @@ public class SkewerItem extends Item {
         }
 
         public Builder effect(Supplier<MobEffectInstance> effect, float probability) {
-            foodBuilder = foodBuilder.effect(effect, probability);
+            foodBuilder = foodBuilder.effect(effect.get(), probability);
             return this;
         }
 

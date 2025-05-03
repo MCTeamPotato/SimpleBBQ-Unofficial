@@ -5,6 +5,10 @@ import com.sihenzhang.simplebbq.SimpleBBQRegistry;
 import com.sihenzhang.simplebbq.block.GrillBlock;
 import com.sihenzhang.simplebbq.recipe.SeasoningInput;
 import com.sihenzhang.simplebbq.recipe.SeasoningRecipe;
+import io.github.fabricators_of_create.porting_lib.core.util.INBTSerializable;
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemHandlerHelper;
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandlerContainer;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -18,10 +22,8 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraft.world.Container;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
@@ -32,30 +34,25 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.neoforged.neoforge.common.util.INBTSerializable;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-import net.neoforged.neoforge.items.ItemStackHandler;
-import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
 import org.jetbrains.annotations.UnknownNullability;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Optional;
 
 public class GrillBlockEntity extends BlockEntity {
     private static final int BURN_COOL_SPEED = 2;
     private static final int SLOT_NUM = 2;
 
     private final CampfireData campfireData = new CampfireData();
-    private final ItemStackHandler inventory = new ItemStackHandler(SLOT_NUM) {
+    private final ItemStackHandlerContainer inventory = new ItemStackHandlerContainer(SLOT_NUM) {
         @Override
         public int getSlotLimit(int slot) {
             return 1;
         }
 
         @Override
-        public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
-            return getCookingRecipe(stack, level)!=null;
+        public boolean isItemValid(int slot, @Nonnull ItemVariant itemVariant, int count) {
+            return getCookingRecipe(itemVariant.toStack(count), level) != null;
         }
 
         @Override
@@ -68,7 +65,7 @@ public class GrillBlockEntity extends BlockEntity {
     private final int[] cookingTime = new int[SLOT_NUM];
 
     public GrillBlockEntity(BlockPos pWorldPosition, BlockState pBlockState) {
-        super(SimpleBBQRegistry.GRILL_BLOCK_ENTITY.get(), pWorldPosition, pBlockState);
+        super(SimpleBBQRegistry.GRILL_BLOCK_ENTITY, pWorldPosition, pBlockState);
     }
 
     public void initCampfireState(CampfireData data, HolderLookup.Provider registries) {
@@ -96,7 +93,7 @@ public class GrillBlockEntity extends BlockEntity {
         }
 
         if (pState.hasProperty(GrillBlock.LIT) && pState.getValue(GrillBlock.LIT)) {
-            for (var i = 0; i < pBlockEntity.inventory.getSlots(); i++) {
+            for (var i = 0; i < pBlockEntity.inventory.getSlots().size(); i++) {
                 var stackInSlot = pBlockEntity.inventory.getStackInSlot(i);
                 if (!stackInSlot.isEmpty()) {
                     hasChanged = true;
@@ -120,7 +117,7 @@ public class GrillBlockEntity extends BlockEntity {
                 }
             }
         } else {
-            for (var i = 0; i < pBlockEntity.inventory.getSlots(); i++) {
+            for (var i = 0; i < pBlockEntity.inventory.getSlots().size(); i++) {
                 var stackInSlot = pBlockEntity.inventory.getStackInSlot(i);
                 if (!stackInSlot.isEmpty()) {
                     hasChanged = true;
@@ -143,7 +140,7 @@ public class GrillBlockEntity extends BlockEntity {
             }
 
             var facing = pState.getValue(GrillBlock.FACING);
-            for (var i = 0; i < pBlockEntity.inventory.getSlots(); i++) {
+            for (var i = 0; i < pBlockEntity.inventory.getSlots().size(); i++) {
                 if (!pBlockEntity.inventory.getStackInSlot(i).isEmpty() && random.nextFloat() < 0.2F) {
                     var x = (double) pPos.getX() + 0.5D + (facing.getAxis() == Direction.Axis.Z ? (0.2D - 0.4D * i) * facing.getStepZ() : 0.0D);
                     var y = (double) pPos.getY() + 1.1D;
@@ -157,7 +154,7 @@ public class GrillBlockEntity extends BlockEntity {
         }
     }
 
-    public ItemStackHandler getInventory() {
+    public ItemStackHandlerContainer getInventory() {
         return inventory;
     }
 
@@ -213,7 +210,7 @@ public class GrillBlockEntity extends BlockEntity {
     @Nullable
     public RecipeHolder<? extends AbstractCookingRecipe> getCookingRecipe(ItemStack itemStack, Level pLevel) {
         try {
-            var grillCookingRecipe = pLevel.getRecipeManager().getRecipeFor(SimpleBBQRegistry.GRILL_COOKING_RECIPE_TYPE.get(), new SingleRecipeInput(itemStack), pLevel);
+            var grillCookingRecipe = pLevel.getRecipeManager().getRecipeFor(SimpleBBQRegistry.GRILL_COOKING_RECIPE_TYPE, new SingleRecipeInput(itemStack), pLevel);
             return grillCookingRecipe.isPresent() ? grillCookingRecipe.orElseThrow() : pLevel.getRecipeManager().getRecipeFor(RecipeType.CAMPFIRE_COOKING, new SingleRecipeInput(itemStack), pLevel).orElseThrow();
         } catch (Exception e) {
             return null;
@@ -222,7 +219,7 @@ public class GrillBlockEntity extends BlockEntity {
 
     @Nullable
     public RecipeHolder<? extends AbstractCookingRecipe> getCookableRecipe(ItemStack input) {
-        for (var i = 0; i < inventory.getSlots(); i++) {
+        for (var i = 0; i < inventory.getSlots().size(); i++) {
             if (inventory.getStackInSlot(i).isEmpty()) {
                 return this.getCookingRecipe(input, level);
             }
@@ -231,7 +228,7 @@ public class GrillBlockEntity extends BlockEntity {
     }
 
     public boolean placeFood(ItemStack input, int cookTime) {
-        for (var i = 0; i < inventory.getSlots(); i++) {
+        for (var i = 0; i < inventory.getSlots().size(); i++) {
             if (inventory.getStackInSlot(i).isEmpty()) {
                 cookingTime[i] = cookTime;
                 cookingProgress[i] = 0;
@@ -259,7 +256,7 @@ public class GrillBlockEntity extends BlockEntity {
     public RecipeHolder<SeasoningRecipe> getSeasoningRecipe(ItemStack seasoning, boolean isHittingLeftSide) {
         try {
             var input = inventory.getStackInSlot(isHittingLeftSide ? 0 : 1);
-            return level.getRecipeManager().getRecipeFor(SimpleBBQRegistry.SEASONING_RECIPE_TYPE.get(), new SeasoningInput(input, seasoning), level).orElseThrow();
+            return level.getRecipeManager().getRecipeFor(SimpleBBQRegistry.SEASONING_RECIPE_TYPE, new SeasoningInput(input, seasoning), level).orElseThrow();
         }catch (Exception e){
             return null;
         }
@@ -271,7 +268,7 @@ public class GrillBlockEntity extends BlockEntity {
             return false;
         }
         var container = new SeasoningInput(input, seasoning);
-        var optionalRecipe = level.getRecipeManager().getRecipeFor(SimpleBBQRegistry.SEASONING_RECIPE_TYPE.get(), container, level);
+        var optionalRecipe = level.getRecipeManager().getRecipeFor(SimpleBBQRegistry.SEASONING_RECIPE_TYPE, container, level);
         if (optionalRecipe.isEmpty()) {
             return false;
         }

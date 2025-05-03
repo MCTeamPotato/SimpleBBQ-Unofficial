@@ -9,7 +9,6 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.world.item.ItemDisplayContext;
 import com.mojang.math.Axis;
-import net.neoforged.neoforge.client.model.data.ModelData;
 
 public class GrillRenderer implements BlockEntityRenderer<GrillBlockEntity> {
     public GrillRenderer(BlockEntityRendererProvider.Context pContext) {
@@ -22,7 +21,7 @@ public class GrillRenderer implements BlockEntityRenderer<GrillBlockEntity> {
         var direction = pBlockEntity.getBlockState().getValue(GrillBlock.FACING);
         var inventory = pBlockEntity.getInventory();
         var posInt = (int) pBlockEntity.getBlockPos().asLong();
-        for (var i = 0; i < inventory.getSlots(); i++) {
+        for (var i = 0; i < inventory.getSlots().size(); i++) {
             var itemStack = inventory.getStackInSlot(i);
             if (!itemStack.isEmpty()) {
                 var itemRenderer = mc.getItemRenderer();
@@ -58,7 +57,7 @@ public class GrillRenderer implements BlockEntityRenderer<GrillBlockEntity> {
         var blockState = pBlockEntity.getCampfireData().toBlockState();
         pPoseStack.pushPose();
         // TODO: RenderType不确定
-        mc.getBlockRenderer().renderSingleBlock(blockState, pPoseStack, pBufferSource, pPackedLight, pPackedOverlay, ModelData.EMPTY, null);
+        mc.getBlockRenderer().renderSingleBlock(blockState, pPoseStack, pBufferSource, pPackedLight, pPackedOverlay);
         pPoseStack.popPose();
     }
 }

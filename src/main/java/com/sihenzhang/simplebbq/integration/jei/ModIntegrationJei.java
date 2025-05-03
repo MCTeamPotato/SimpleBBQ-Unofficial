@@ -44,20 +44,20 @@ public class ModIntegrationJei implements IModPlugin {
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
         var recipeManager = Minecraft.getInstance().level.getRecipeManager();
-        List<GrillCookingRecipe> boilingPotRecipes = recipeManager.getAllRecipesFor(SimpleBBQRegistry.GRILL_COOKING_RECIPE_TYPE.get()).stream().map(RecipeHolder::value).collect(Collectors.toList());
+        List<GrillCookingRecipe> boilingPotRecipes = recipeManager.getAllRecipesFor(SimpleBBQRegistry.GRILL_COOKING_RECIPE_TYPE).stream().map(RecipeHolder::value).collect(Collectors.toList());
         registration.addRecipes(GrillCookingCategory.RECIPE_TYPE, boilingPotRecipes);
         List<CampfireCookingRecipe> campfireCookingRecipes = recipeManager.getAllRecipesFor(RecipeType.CAMPFIRE_COOKING).stream().map(RecipeHolder::value).collect(Collectors.toList());
         registration.addRecipes(CampfireCookingOnGrillCategory.RECIPE_TYPE, campfireCookingRecipes);
-        List<SeasoningRecipe> seasoningRecipes = recipeManager.getAllRecipesFor(SimpleBBQRegistry.SEASONING_RECIPE_TYPE.get()).stream().map(RecipeHolder::value).collect(Collectors.toList());
+        List<SeasoningRecipe> seasoningRecipes = recipeManager.getAllRecipesFor(SimpleBBQRegistry.SEASONING_RECIPE_TYPE).stream().map(RecipeHolder::value).collect(Collectors.toList());
         registration.addRecipes(SeasoningCategory.RECIPE_TYPE, seasoningRecipes);
-        List<SkeweringRecipe> skeweringRecipes = recipeManager.getAllRecipesFor(SimpleBBQRegistry.SKEWERING_RECIPE_TYPE.get()).stream().map(RecipeHolder::value).collect(Collectors.toList());
+        List<SkeweringRecipe> skeweringRecipes = recipeManager.getAllRecipesFor(SimpleBBQRegistry.SKEWERING_RECIPE_TYPE).stream().map(RecipeHolder::value).collect(Collectors.toList());
         registration.addRecipes(SkeweringCategory.RECIPE_TYPE, skeweringRecipes);
 
         registration.addIngredientInfo(
                 List.of(
-                        SimpleBBQRegistry.CHILI_POWDER.get().getDefaultInstance(),
-                        SimpleBBQRegistry.CUMIN.get().getDefaultInstance(),
-                        SimpleBBQRegistry.SALT_AND_PEPPER.get().getDefaultInstance()
+                        SimpleBBQRegistry.CHILI_POWDER.getDefaultInstance(),
+                        SimpleBBQRegistry.CUMIN.getDefaultInstance(),
+                        SimpleBBQRegistry.SALT_AND_PEPPER.getDefaultInstance()
                 ),
                 VanillaTypes.ITEM_STACK,
                 I18nUtils.createIntegrationComponent(MOD_ID, "description.seasoning")
@@ -66,7 +66,7 @@ public class ModIntegrationJei implements IModPlugin {
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(SimpleBBQRegistry.GRILL_BLOCK_ITEM.get().getDefaultInstance(), GrillCookingCategory.RECIPE_TYPE, CampfireCookingOnGrillCategory.RECIPE_TYPE, SeasoningCategory.RECIPE_TYPE);
-        registration.addRecipeCatalyst(SimpleBBQRegistry.SKEWERING_TABLE_BLOCK_ITEM.get().getDefaultInstance(), SkeweringCategory.RECIPE_TYPE);
+        registration.addRecipeCatalyst(SimpleBBQRegistry.GRILL_BLOCK_ITEM.getDefaultInstance(), GrillCookingCategory.RECIPE_TYPE, CampfireCookingOnGrillCategory.RECIPE_TYPE, SeasoningCategory.RECIPE_TYPE);
+        registration.addRecipeCatalyst(SimpleBBQRegistry.SKEWERING_TABLE_BLOCK_ITEM.getDefaultInstance(), SkeweringCategory.RECIPE_TYPE);
     }
 }

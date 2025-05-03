@@ -15,8 +15,8 @@ public final class RLUtils {
         return ResourceLocation.fromNamespaceAndPath(namespace, path);
     }
 
-    public static ResourceLocation createForgeRL(String path) {
-        return ResourceLocation.fromNamespaceAndPath("forge", path);
+    public static ResourceLocation createConventionTagRL(String path) {
+        return ResourceLocation.fromNamespaceAndPath("c", path);
     }
 
     public static ResourceLocation createVanillaRL(String path) {

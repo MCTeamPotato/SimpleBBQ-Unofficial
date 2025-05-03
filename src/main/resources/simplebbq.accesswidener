@@ -1,0 +1,9 @@
+accessWidener v2 named
+
+accessible method net/minecraft/core/particles/SimpleParticleType <init> (Z)V
+
+accessible field net/minecraft/world/level/block/CampfireBlock fireDamage I
+accessible field net/minecraft/world/phys/shapes/EntityCollisionContext heldItem Lnet/minecraft/world/item/ItemStack;
+accessible field net/minecraft/world/level/levelgen/structure/pools/StructureTemplatePool rawTemplates Ljava/util/List;
+mutable field net/minecraft/world/level/levelgen/structure/pools/StructureTemplatePool rawTemplates Ljava/util/List;
+accessible field net/minecraft/world/level/levelgen/structure/pools/StructureTemplatePool templates Lit/unimi/dsi/fastutil/objects/ObjectArrayList;

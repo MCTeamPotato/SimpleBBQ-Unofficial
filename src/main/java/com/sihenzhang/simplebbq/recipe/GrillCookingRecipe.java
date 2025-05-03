@@ -16,7 +16,7 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 public class GrillCookingRecipe extends AbstractCookingRecipe {
 
     public GrillCookingRecipe(String pGroup, Ingredient pIngredient, ItemStack pResult, int pCookingTime) {
-        super(SimpleBBQRegistry.GRILL_COOKING_RECIPE_TYPE.get(), pGroup, CookingBookCategory.MISC, pIngredient, pResult, 0.0F, pCookingTime);
+        super(SimpleBBQRegistry.GRILL_COOKING_RECIPE_TYPE, pGroup, CookingBookCategory.MISC, pIngredient, pResult, 0.0F, pCookingTime);
     }
 
     public Ingredient getIngredient() {
@@ -34,12 +34,12 @@ public class GrillCookingRecipe extends AbstractCookingRecipe {
 
     @Override
     public ItemStack getToastSymbol() {
-        return SimpleBBQRegistry.GRILL_BLOCK_ITEM.get().getDefaultInstance();
+        return SimpleBBQRegistry.GRILL_BLOCK_ITEM.getDefaultInstance();
     }
 
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return SimpleBBQRegistry.GRILL_COOKING_RECIPE_SERIALIZER.get();
+        return SimpleBBQRegistry.GRILL_COOKING_RECIPE_SERIALIZER;
     }
 
     public static class Serializer implements RecipeSerializer<GrillCookingRecipe> {

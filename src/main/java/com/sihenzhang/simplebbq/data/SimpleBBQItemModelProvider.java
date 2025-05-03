@@ -3,15 +3,15 @@ package com.sihenzhang.simplebbq.data;
 import com.sihenzhang.simplebbq.SimpleBBQ;
 import com.sihenzhang.simplebbq.SimpleBBQRegistry;
 import com.sihenzhang.simplebbq.util.RLUtils;
+import io.github.fabricators_of_create.porting_lib.data.ExistingFileHelper;
+import io.github.fabricators_of_create.porting_lib.models.generators.ItemModelBuilder;
+import io.github.fabricators_of_create.porting_lib.models.generators.ItemModelProvider;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
-import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
-import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
 public class SimpleBBQItemModelProvider extends ItemModelProvider {
     public SimpleBBQItemModelProvider(PackOutput output, ExistingFileHelper existingFileHelper) {
@@ -20,33 +20,33 @@ public class SimpleBBQItemModelProvider extends ItemModelProvider {
 
     @Override
     protected void registerModels() {
-        this.blockItem(SimpleBBQRegistry.GRILL_BLOCK.get());
-        this.blockItem(SimpleBBQRegistry.SKEWERING_TABLE_BLOCK.get());
+        this.blockItem(SimpleBBQRegistry.GRILL_BLOCK);
+        this.blockItem(SimpleBBQRegistry.SKEWERING_TABLE_BLOCK);
 
-        this.simpleItem(SimpleBBQRegistry.CHILI_POWDER.get());
-        this.simpleItem(SimpleBBQRegistry.CUMIN.get());
-        this.simpleItem(SimpleBBQRegistry.SALT_AND_PEPPER.get());
+        this.simpleItem(SimpleBBQRegistry.CHILI_POWDER);
+        this.simpleItem(SimpleBBQRegistry.CUMIN);
+        this.simpleItem(SimpleBBQRegistry.SALT_AND_PEPPER);
 
-        this.simpleHandheldItem(SimpleBBQRegistry.BEEF_SKEWER.get());
-        this.simpleHandheldItem(SimpleBBQRegistry.COOKED_BEEF_SKEWER.get());
-        this.simpleHandheldItem(SimpleBBQRegistry.CHICKEN_SKEWER.get());
-        this.simpleHandheldItem(SimpleBBQRegistry.COOKED_CHICKEN_SKEWER.get());
-        this.simpleHandheldItem(SimpleBBQRegistry.MUTTON_SKEWER.get());
-        this.simpleHandheldItem(SimpleBBQRegistry.COOKED_MUTTON_SKEWER.get());
-        this.simpleHandheldItem(SimpleBBQRegistry.PORK_SKEWER.get());
-        this.simpleHandheldItem(SimpleBBQRegistry.COOKED_PORK_SKEWER.get());
-        this.simpleHandheldItem(SimpleBBQRegistry.RABBIT_SKEWER.get());
-        this.simpleHandheldItem(SimpleBBQRegistry.COOKED_RABBIT_SKEWER.get());
-        this.simpleHandheldItem(SimpleBBQRegistry.COD_SKEWER.get());
-        this.simpleHandheldItem(SimpleBBQRegistry.COOKED_COD_SKEWER.get());
-        this.simpleHandheldItem(SimpleBBQRegistry.SALMON_SKEWER.get());
-        this.simpleHandheldItem(SimpleBBQRegistry.COOKED_SALMON_SKEWER.get());
-        this.simpleHandheldItem(SimpleBBQRegistry.BREAD_SLICE_SKEWER.get());
-        this.simpleHandheldItem(SimpleBBQRegistry.TOAST_SKEWER.get());
-        this.simpleHandheldItem(SimpleBBQRegistry.MUSHROOM_SKEWER.get());
-        this.simpleHandheldItem(SimpleBBQRegistry.ROASTED_MUSHROOM_SKEWER.get());
-        this.simpleHandheldItem(SimpleBBQRegistry.POTATO_SKEWER.get());
-        this.simpleHandheldItem(SimpleBBQRegistry.BAKED_POTATO_SKEWER.get());
+        this.simpleHandheldItem(SimpleBBQRegistry.BEEF_SKEWER);
+        this.simpleHandheldItem(SimpleBBQRegistry.COOKED_BEEF_SKEWER);
+        this.simpleHandheldItem(SimpleBBQRegistry.CHICKEN_SKEWER);
+        this.simpleHandheldItem(SimpleBBQRegistry.COOKED_CHICKEN_SKEWER);
+        this.simpleHandheldItem(SimpleBBQRegistry.MUTTON_SKEWER);
+        this.simpleHandheldItem(SimpleBBQRegistry.COOKED_MUTTON_SKEWER);
+        this.simpleHandheldItem(SimpleBBQRegistry.PORK_SKEWER);
+        this.simpleHandheldItem(SimpleBBQRegistry.COOKED_PORK_SKEWER);
+        this.simpleHandheldItem(SimpleBBQRegistry.RABBIT_SKEWER);
+        this.simpleHandheldItem(SimpleBBQRegistry.COOKED_RABBIT_SKEWER);
+        this.simpleHandheldItem(SimpleBBQRegistry.COD_SKEWER);
+        this.simpleHandheldItem(SimpleBBQRegistry.COOKED_COD_SKEWER);
+        this.simpleHandheldItem(SimpleBBQRegistry.SALMON_SKEWER);
+        this.simpleHandheldItem(SimpleBBQRegistry.COOKED_SALMON_SKEWER);
+        this.simpleHandheldItem(SimpleBBQRegistry.BREAD_SLICE_SKEWER);
+        this.simpleHandheldItem(SimpleBBQRegistry.TOAST_SKEWER);
+        this.simpleHandheldItem(SimpleBBQRegistry.MUSHROOM_SKEWER);
+        this.simpleHandheldItem(SimpleBBQRegistry.ROASTED_MUSHROOM_SKEWER);
+        this.simpleHandheldItem(SimpleBBQRegistry.POTATO_SKEWER);
+        this.simpleHandheldItem(SimpleBBQRegistry.BAKED_POTATO_SKEWER);
     }
 
     public ItemModelBuilder blockItem(Block block) {

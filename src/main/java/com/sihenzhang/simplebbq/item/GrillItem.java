@@ -1,6 +1,5 @@
 package com.sihenzhang.simplebbq.item;
 
-import com.sihenzhang.simplebbq.SimpleBBQ;
 import com.sihenzhang.simplebbq.SimpleBBQRegistry;
 import com.sihenzhang.simplebbq.block.GrillBlock;
 import com.sihenzhang.simplebbq.block.entity.GrillBlockEntity;
@@ -12,7 +11,7 @@ import net.minecraft.world.item.context.UseOnContext;
 
 public class GrillItem extends BlockItem {
     public GrillItem() {
-        super(SimpleBBQRegistry.GRILL_BLOCK.get(), new Item.Properties());
+        super(SimpleBBQRegistry.GRILL_BLOCK, new Item.Properties());
     }
 
     @Override
