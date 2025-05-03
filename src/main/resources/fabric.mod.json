@@ -11,7 +11,7 @@
     "homepage": "https://github.com/MCTeamPotato/",
     "sources": "https://github.com/MCTeamPotato/SimpleBBQ-Unofficial/issues"
   },
-  "license": "CC0-1.0",
+  "license": "MIT",
   "icon": "logo.png",
   "environment": "*",
   "entrypoints": {
