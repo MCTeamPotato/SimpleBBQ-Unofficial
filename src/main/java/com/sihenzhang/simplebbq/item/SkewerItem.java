@@ -1,6 +1,7 @@
 package com.sihenzhang.simplebbq.item;
 
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.food.FoodProperties;
@@ -54,16 +55,15 @@ public class SkewerItem extends Item {
             if (baseFoodProperties != null) {
                 this.foodBuilder = this.foodBuilder.nutrition(baseFoodProperties.nutrition() + nutritionModifier).saturationModifier(baseFoodProperties.saturation() + saturationModifier);
                 //TODO: 实现注释掉的功能
-
 //                if (baseFoodProperties.isMeat()) {
 //                    this.foodBuilder = this.foodBuilder.meat();
 //                }
                 if (baseFoodProperties.canAlwaysEat()) {
                     this.foodBuilder = this.foodBuilder.alwaysEdible();
                 }
-//                if (baseFoodProperties.isFastFood()) {
-//                    this.duration = 16;
-//                }
+                if (baseFoodProperties.eatSeconds() < 1.6F) {
+                    this.duration = 16;
+                }
                 if (!baseFoodProperties.effects().isEmpty()) {
                     baseFoodProperties.effects().forEach(e -> this.foodBuilder = this.foodBuilder.effect(e.effect(), e.probability()));
                 }
