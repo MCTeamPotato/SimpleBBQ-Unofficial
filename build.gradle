@@ -3,9 +3,9 @@ plugins {
     id 'maven-publish'
 }
 
-version = major_version + '.' + minor_version + '.' + patch_version + '-' + version_label
+version = "$mod_version-$version_label"
 group = 'com.sihenzhang.simplebbq'
-base.archivesName = mod_name + '-' + minecraft_version
+base.archivesName = "$mod_name-fabric-$minecraft_version"
 
 var generatedResources = "src/generated/resources"
 
