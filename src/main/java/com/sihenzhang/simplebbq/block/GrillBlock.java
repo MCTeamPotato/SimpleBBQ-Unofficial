@@ -5,10 +5,15 @@ import com.google.common.collect.ImmutableSet;
 import com.sihenzhang.simplebbq.SimpleBBQConfig;
 import com.sihenzhang.simplebbq.SimpleBBQRegistry;
 import com.sihenzhang.simplebbq.block.entity.GrillBlockEntity;
+import com.sihenzhang.simplebbq.thirdparty.util.EntityAttributes;
+import com.sihenzhang.simplebbq.thirdparty.util.BlockHelper;
+import io.github.fabricators_of_create.porting_lib.transfer.item.RecipeWrapper;
+import net.fabricmc.fabric.api.block.BlockPickInteractionAware;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -18,8 +23,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageSources;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -45,15 +48,12 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.*;
-import net.minecraftforge.common.ForgeMod;
-import net.minecraftforge.items.wrapper.RecipeWrapper;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
 import java.util.Set;
 import java.util.function.Supplier;
 
-public class GrillBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
+public class GrillBlock extends BaseEntityBlock implements SimpleWaterloggedBlock, BlockPickInteractionAware {
     protected static final VoxelShape OUTLINE_SHAPE = Shapes.or(
             Block.box(0.0D, 0.0D, 0.0D, 1.0D, 10.0D, 1.0D),
             Block.box(0.0D, 0.0D, 15.0D, 1.0D, 10.0D, 16.0D),
@@ -66,7 +66,7 @@ public class GrillBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
             Block.box(1.0D, 15.5D, 1.0D, 15.0D, 16.0D, 15.0D),
             BooleanOp.ONLY_FIRST
     );
-    protected static final Supplier<Set<Item>> CAMPFIRE_ITEMS = Suppliers.memoize(() -> ForgeRegistries.ITEMS.getValues().stream().filter(item -> isCampfire(item.getDefaultInstance())).collect(ImmutableSet.toImmutableSet()));
+    protected static final Supplier<Set<Item>> CAMPFIRE_ITEMS = Suppliers.memoize(() -> BuiltInRegistries.ITEM.stream().filter(item -> isCampfire(item.getDefaultInstance())).collect(ImmutableSet.toImmutableSet()));
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
@@ -94,7 +94,7 @@ public class GrillBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                     CriteriaTriggers.PLACED_BLOCK.trigger(serverPlayer, pPos, stackInHand);
                 }
                 pLevel.gameEvent(pPlayer, GameEvent.BLOCK_PLACE, pPos);
-                var campfireSoundType = campfireState.getSoundType(pLevel, pPos, pPlayer);
+                var campfireSoundType = campfireState.getSoundType();
                 pLevel.playSound(pPlayer, pPos, campfireSoundType.getPlaceSound(), SoundSource.BLOCKS, (campfireSoundType.getVolume() + 1.0F) / 2.0F, campfireSoundType.getPitch() * 0.8F);
                 if (!pPlayer.getAbilities().instabuild) {
                     stackInHand.shrink(1);
@@ -331,7 +331,8 @@ public class GrillBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
     }
 
     @Override
-    public ItemStack getCloneItemStack(BlockState state, HitResult target, BlockGetter level, BlockPos pos, Player player) {
+    public ItemStack getPickedStack(BlockState state, BlockGetter level, BlockPos pos, Player player, HitResult target) {
+        var raw = BlockHelper.getRawBlockState(state, level, pos);
         if (level.getBlockEntity(pos) instanceof GrillBlockEntity grillBlockEntity) {
             var campfireState = grillBlockEntity.getCampfireData().toBlockState();
             if (isCampfire(campfireState)) {
@@ -339,17 +340,17 @@ public class GrillBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                 if (hitResult.getType() == HitResult.Type.BLOCK) {
                     var blockHitResult = (BlockHitResult) hitResult;
                     if (!isHittingGrill(blockHitResult)) {
-                        return campfireState.getBlock().getCloneItemStack(campfireState, target, level, pos, player);
+                        return ((BlockPickInteractionAware) campfireState.getBlock()).getPickedStack(campfireState, level, pos, player, target);
                     }
 
                 }
             }
         }
-        return super.getCloneItemStack(state, target, level, pos, player);
+        return ((BlockPickInteractionAware) raw.getBlock()).getPickedStack(state, level, pos, player, target);
     }
 
     private static HitResult getPlayerHitResult(Player pPlayer) {
-        var reachDistanceAttribute = pPlayer.getAttribute(ForgeMod.ENTITY_REACH.get());
+        var reachDistanceAttribute = pPlayer.getAttribute(EntityAttributes.ENTITY_REACH);
         var reachDistance = reachDistanceAttribute != null ? reachDistanceAttribute.getValue() : 5.0D;
         if (pPlayer.isCreative()) {
             reachDistance -= 0.5D;
@@ -497,7 +498,7 @@ public class GrillBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
         var y = (double) pPos.getY() + random.nextDouble() + random.nextDouble();
         var z = (double) pPos.getZ() + 0.5D + random.nextDouble() / 3.0D * (random.nextBoolean() ? 1.0D : -1.0D);
         var ySpeed = Mth.nextDouble(random, 0.015D, 0.025D);
-        pLevel.addAlwaysVisibleParticle(SimpleBBQRegistry.CAMPFIRE_SMOKE_UNDER_GRILL.get(), true, x, y, z, 0.0D, ySpeed, 0.0D);
+        pLevel.addAlwaysVisibleParticle(SimpleBBQRegistry.CAMPFIRE_SMOKE_UNDER_GRILL, true, x, y, z, 0.0D, ySpeed, 0.0D);
         if (pSpawnExtraSmoke) {
             pLevel.addParticle(ParticleTypes.SMOKE, (double) pPos.getX() + 0.5D + random.nextDouble() / 4.0D * (double) (random.nextBoolean() ? 1 : -1), (double) pPos.getY() + 0.4D, (double) pPos.getZ() + 0.5D + random.nextDouble() / 4.0D * (double) (random.nextBoolean() ? 1 : -1), 0.0D, 0.005D, 0.0D);
         }
@@ -536,9 +537,9 @@ public class GrillBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level pLevel, BlockState pState, BlockEntityType<T> pBlockEntityType) {
         if (pLevel.isClientSide()) {
-            return createTickerHelper(pBlockEntityType, SimpleBBQRegistry.GRILL_BLOCK_ENTITY.get(), GrillBlockEntity::clientTick);
+            return createTickerHelper(pBlockEntityType, SimpleBBQRegistry.GRILL_BLOCK_ENTITY, GrillBlockEntity::clientTick);
         }
-        return createTickerHelper(pBlockEntityType, SimpleBBQRegistry.GRILL_BLOCK_ENTITY.get(), GrillBlockEntity::serverTick);
+        return createTickerHelper(pBlockEntityType, SimpleBBQRegistry.GRILL_BLOCK_ENTITY, GrillBlockEntity::serverTick);
     }
 
     @Override

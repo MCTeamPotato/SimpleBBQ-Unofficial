@@ -4,9 +4,14 @@ import com.google.common.base.Preconditions;
 import com.sihenzhang.simplebbq.SimpleBBQRegistry;
 import com.sihenzhang.simplebbq.block.GrillBlock;
 import com.sihenzhang.simplebbq.recipe.SeasoningRecipe;
+import io.github.fabricators_of_create.porting_lib.core.util.INBTSerializable;
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemHandlerHelper;
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandlerContainer;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.Packet;
@@ -28,10 +33,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraftforge.common.util.INBTSerializable;
-import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.items.ItemStackHandler;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -42,15 +43,15 @@ public class GrillBlockEntity extends BlockEntity {
     private static final int SLOT_NUM = 2;
 
     private final CampfireData campfireData = new CampfireData();
-    private final ItemStackHandler inventory = new ItemStackHandler(SLOT_NUM) {
+    private final ItemStackHandlerContainer inventory = new ItemStackHandlerContainer(SLOT_NUM) {
         @Override
         public int getSlotLimit(int slot) {
             return 1;
         }
 
         @Override
-        public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
-            return getCookingRecipe(new SimpleContainer(stack), level).isPresent();
+        public boolean isItemValid(int slot, @Nonnull ItemVariant itemVariant, int count) {
+            return getCookingRecipe(new SimpleContainer(itemVariant.toStack(count)), level).isPresent();
         }
 
         @Override
@@ -63,7 +64,7 @@ public class GrillBlockEntity extends BlockEntity {
     private final int[] cookingTime = new int[SLOT_NUM];
 
     public GrillBlockEntity(BlockPos pWorldPosition, BlockState pBlockState) {
-        super(SimpleBBQRegistry.GRILL_BLOCK_ENTITY.get(), pWorldPosition, pBlockState);
+        super(SimpleBBQRegistry.GRILL_BLOCK_ENTITY, pWorldPosition, pBlockState);
     }
 
     public void initCampfireState(CampfireData data) {
@@ -91,7 +92,7 @@ public class GrillBlockEntity extends BlockEntity {
         }
 
         if (pState.hasProperty(GrillBlock.LIT) && pState.getValue(GrillBlock.LIT)) {
-            for (var i = 0; i < pBlockEntity.inventory.getSlots(); i++) {
+            for (var i = 0; i < pBlockEntity.inventory.getSlots().size(); i++) {
                 var stackInSlot = pBlockEntity.inventory.getStackInSlot(i);
                 if (!stackInSlot.isEmpty()) {
                     hasChanged = true;
@@ -110,7 +111,7 @@ public class GrillBlockEntity extends BlockEntity {
                 }
             }
         } else {
-            for (var i = 0; i < pBlockEntity.inventory.getSlots(); i++) {
+            for (var i = 0; i < pBlockEntity.inventory.getSlots().size(); i++) {
                 var stackInSlot = pBlockEntity.inventory.getStackInSlot(i);
                 if (!stackInSlot.isEmpty()) {
                     hasChanged = true;
@@ -133,7 +134,7 @@ public class GrillBlockEntity extends BlockEntity {
             }
 
             var facing = pState.getValue(GrillBlock.FACING);
-            for (var i = 0; i < pBlockEntity.inventory.getSlots(); i++) {
+            for (var i = 0; i < pBlockEntity.inventory.getSlots().size(); i++) {
                 if (!pBlockEntity.inventory.getStackInSlot(i).isEmpty() && random.nextFloat() < 0.2F) {
                     var x = (double) pPos.getX() + 0.5D + (facing.getAxis() == Direction.Axis.Z ? (0.2D - 0.4D * i) * facing.getStepZ() : 0.0D);
                     var y = (double) pPos.getY() + 1.1D;
@@ -147,7 +148,7 @@ public class GrillBlockEntity extends BlockEntity {
         }
     }
 
-    public ItemStackHandler getInventory() {
+    public ItemStackHandlerContainer getInventory() {
         return inventory;
     }
 
@@ -201,12 +202,12 @@ public class GrillBlockEntity extends BlockEntity {
     }
 
     public <C extends Container> Optional<? extends AbstractCookingRecipe> getCookingRecipe(C pInventory, Level pLevel) {
-        var grillCookingRecipe = pLevel.getRecipeManager().getRecipeFor(SimpleBBQRegistry.GRILL_COOKING_RECIPE_TYPE.get(), pInventory, pLevel);
+        var grillCookingRecipe = pLevel.getRecipeManager().getRecipeFor(SimpleBBQRegistry.GRILL_COOKING_RECIPE_TYPE, pInventory, pLevel);
         return grillCookingRecipe.isPresent() ? grillCookingRecipe : pLevel.getRecipeManager().getRecipeFor(RecipeType.CAMPFIRE_COOKING, pInventory, pLevel);
     }
 
     public Optional<? extends AbstractCookingRecipe> getCookableRecipe(ItemStack input) {
-        for (var i = 0; i < inventory.getSlots(); i++) {
+        for (var i = 0; i < inventory.getSlots().size(); i++) {
             if (inventory.getStackInSlot(i).isEmpty()) {
                 return this.getCookingRecipe(new SimpleContainer(input), level);
             }
@@ -215,7 +216,7 @@ public class GrillBlockEntity extends BlockEntity {
     }
 
     public boolean placeFood(ItemStack input, int cookTime) {
-        for (var i = 0; i < inventory.getSlots(); i++) {
+        for (var i = 0; i < inventory.getSlots().size(); i++) {
             if (inventory.getStackInSlot(i).isEmpty()) {
                 cookingTime[i] = cookTime;
                 cookingProgress[i] = 0;
@@ -241,7 +242,7 @@ public class GrillBlockEntity extends BlockEntity {
 
     public Optional<SeasoningRecipe> getSeasoningRecipe(ItemStack seasoning, boolean isHittingLeftSide) {
         var input = inventory.getStackInSlot(isHittingLeftSide ? 0 : 1);
-        return level.getRecipeManager().getRecipeFor(SimpleBBQRegistry.SEASONING_RECIPE_TYPE.get(), new SimpleContainer(input, seasoning), level);
+        return level.getRecipeManager().getRecipeFor(SimpleBBQRegistry.SEASONING_RECIPE_TYPE, new SimpleContainer(input, seasoning), level);
     }
 
     public boolean addSeasoning(Player player, ItemStack seasoning, boolean isHittingLeftSide) {
@@ -250,7 +251,7 @@ public class GrillBlockEntity extends BlockEntity {
             return false;
         }
         var container = new SimpleContainer(input, seasoning);
-        var optionalRecipe = level.getRecipeManager().getRecipeFor(SimpleBBQRegistry.SEASONING_RECIPE_TYPE.get(), container, level);
+        var optionalRecipe = level.getRecipeManager().getRecipeFor(SimpleBBQRegistry.SEASONING_RECIPE_TYPE, container, level);
         if (optionalRecipe.isEmpty()) {
             return false;
         }
@@ -274,7 +275,7 @@ public class GrillBlockEntity extends BlockEntity {
     }
 
     public static final class CampfireData implements INBTSerializable<CompoundTag> {
-        public ResourceLocation registryName = ForgeRegistries.BLOCKS.getKey(Blocks.AIR);
+        public ResourceLocation registryName = BuiltInRegistries.BLOCK.getKey(Blocks.AIR);
         public boolean lit = false;
         public Direction facing;
 
@@ -283,7 +284,7 @@ public class GrillBlockEntity extends BlockEntity {
 
         public CampfireData(BlockState state) {
             Preconditions.checkArgument(GrillBlock.isCampfire(state), "State must be a Campfire.");
-            this.registryName = ForgeRegistries.BLOCKS.getKey(state.getBlock());
+            this.registryName = BuiltInRegistries.BLOCK.getKey(state.getBlock());
             this.lit = state.getValue(BlockStateProperties.LIT);
             if (state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
                 this.facing = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
@@ -314,7 +315,7 @@ public class GrillBlockEntity extends BlockEntity {
             if (registryName == null) {
                 return Blocks.AIR.defaultBlockState();
             }
-            var state = ForgeRegistries.BLOCKS.getValue(registryName).defaultBlockState();
+            var state = BuiltInRegistries.BLOCK.get(registryName).defaultBlockState();
             if (state.hasProperty(BlockStateProperties.LIT)) {
                 state = state.setValue(BlockStateProperties.LIT, lit);
             }

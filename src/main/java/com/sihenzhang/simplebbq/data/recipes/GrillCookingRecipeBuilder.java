@@ -3,6 +3,7 @@ package com.sihenzhang.simplebbq.data.recipes;
 import com.google.gson.JsonObject;
 import com.sihenzhang.simplebbq.SimpleBBQRegistry;
 import net.minecraft.advancements.CriterionTriggerInstance;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
@@ -10,7 +11,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
 import java.util.function.Consumer;
@@ -74,7 +74,7 @@ public class GrillCookingRecipeBuilder implements RecipeBuilder {
                 pJson.addProperty("group", group);
             }
             pJson.add("ingredient", ingredient.toJson());
-            pJson.addProperty("result", ForgeRegistries.ITEMS.getKey(result).toString());
+            pJson.addProperty("result", BuiltInRegistries.ITEM.getKey(result).toString());
             pJson.addProperty("cookingtime", cookingTime);
         }
 
@@ -85,7 +85,7 @@ public class GrillCookingRecipeBuilder implements RecipeBuilder {
 
         @Override
         public RecipeSerializer<?> getType() {
-            return SimpleBBQRegistry.GRILL_COOKING_RECIPE_SERIALIZER.get();
+            return SimpleBBQRegistry.GRILL_COOKING_RECIPE_SERIALIZER;
         }
 
         @Nullable

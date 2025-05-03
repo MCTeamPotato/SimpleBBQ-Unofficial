@@ -15,8 +15,8 @@ public final class RLUtils {
         return new ResourceLocation(namespace, path);
     }
 
-    public static ResourceLocation createForgeRL(String path) {
-        return new ResourceLocation("forge", path);
+    public static ResourceLocation createConventionTagRL(String path) {
+        return new ResourceLocation("c", path);
     }
 
     public static ResourceLocation createVanillaRL(String path) {

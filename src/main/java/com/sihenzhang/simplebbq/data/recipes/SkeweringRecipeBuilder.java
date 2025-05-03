@@ -3,6 +3,7 @@ package com.sihenzhang.simplebbq.data.recipes;
 import com.google.gson.JsonObject;
 import com.sihenzhang.simplebbq.SimpleBBQRegistry;
 import net.minecraft.advancements.CriterionTriggerInstance;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
@@ -10,7 +11,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
 import java.util.function.Consumer;
@@ -90,7 +90,7 @@ public class SkeweringRecipeBuilder implements RecipeBuilder {
                 pJson.add("ingredient", ingredient.toJson());
             }
             var resultObject = new JsonObject();
-            resultObject.addProperty("item", ForgeRegistries.ITEMS.getKey(result).toString());
+            resultObject.addProperty("item", BuiltInRegistries.ITEM.getKey(result).toString());
             if (resultCount > 1) {
                 resultObject.addProperty("count", resultCount);
             }
@@ -104,7 +104,7 @@ public class SkeweringRecipeBuilder implements RecipeBuilder {
 
         @Override
         public RecipeSerializer<?> getType() {
-            return SimpleBBQRegistry.SKEWERING_RECIPE_SERIALIZER.get();
+            return SimpleBBQRegistry.SKEWERING_RECIPE_SERIALIZER;
         }
 
         @Nullable

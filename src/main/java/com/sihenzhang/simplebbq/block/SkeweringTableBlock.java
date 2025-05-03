@@ -1,7 +1,7 @@
 package com.sihenzhang.simplebbq.block;
 
 import com.sihenzhang.simplebbq.block.entity.SkeweringTableBlockEntity;
-import net.minecraft.client.resources.model.Material;
+import io.github.fabricators_of_create.porting_lib.transfer.item.RecipeWrapper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.Containers;
@@ -18,7 +18,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.items.wrapper.RecipeWrapper;
 
 import javax.annotation.Nullable;
 
@@ -38,7 +37,7 @@ public class SkeweringTableBlock extends BaseEntityBlock {
      * Place the food on the Skewering Table or take the food away from the Skewering Table.
      * But before that, it will try to skewer the food on the Skewering Table.
      *
-     * @see com.sihenzhang.simplebbq.event.PlayerUseSkeweringTableToSkewerEvent
+     * @see com.sihenzhang.simplebbq.SimpleBBQEvents#onBlockRightClick();
      */
     @Override
     @SuppressWarnings("deprecation")

@@ -1,8 +1,8 @@
 {
   "type": "simplebbq:grill_cooking",
+  "cookingtime": 300,
   "ingredient": {
     "item": "simplebbq:cod_skewer"
   },
-  "result": "simplebbq:cooked_cod_skewer",
-  "cookingtime": 300
+  "result": "simplebbq:cooked_cod_skewer"
 }

@@ -38,16 +38,16 @@ public class ModIntegrationJei implements IModPlugin {
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
         var recipeManager = Minecraft.getInstance().level.getRecipeManager();
-        registration.addRecipes(GrillCookingCategory.RECIPE_TYPE, recipeManager.getAllRecipesFor(SimpleBBQRegistry.GRILL_COOKING_RECIPE_TYPE.get()));
+        registration.addRecipes(GrillCookingCategory.RECIPE_TYPE, recipeManager.getAllRecipesFor(SimpleBBQRegistry.GRILL_COOKING_RECIPE_TYPE));
         registration.addRecipes(CampfireCookingOnGrillCategory.RECIPE_TYPE, recipeManager.getAllRecipesFor(RecipeType.CAMPFIRE_COOKING));
-        registration.addRecipes(SeasoningCategory.RECIPE_TYPE, recipeManager.getAllRecipesFor(SimpleBBQRegistry.SEASONING_RECIPE_TYPE.get()));
-        registration.addRecipes(SkeweringCategory.RECIPE_TYPE, recipeManager.getAllRecipesFor(SimpleBBQRegistry.SKEWERING_RECIPE_TYPE.get()));
+        registration.addRecipes(SeasoningCategory.RECIPE_TYPE, recipeManager.getAllRecipesFor(SimpleBBQRegistry.SEASONING_RECIPE_TYPE));
+        registration.addRecipes(SkeweringCategory.RECIPE_TYPE, recipeManager.getAllRecipesFor(SimpleBBQRegistry.SKEWERING_RECIPE_TYPE));
 
         registration.addIngredientInfo(
                 List.of(
-                        SimpleBBQRegistry.CHILI_POWDER.get().getDefaultInstance(),
-                        SimpleBBQRegistry.CUMIN.get().getDefaultInstance(),
-                        SimpleBBQRegistry.SALT_AND_PEPPER.get().getDefaultInstance()
+                        SimpleBBQRegistry.CHILI_POWDER.getDefaultInstance(),
+                        SimpleBBQRegistry.CUMIN.getDefaultInstance(),
+                        SimpleBBQRegistry.SALT_AND_PEPPER.getDefaultInstance()
                 ),
                 VanillaTypes.ITEM_STACK,
                 I18nUtils.createIntegrationComponent(MOD_ID, "description.seasoning")
@@ -56,7 +56,7 @@ public class ModIntegrationJei implements IModPlugin {
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(SimpleBBQRegistry.GRILL_BLOCK_ITEM.get().getDefaultInstance(), GrillCookingCategory.RECIPE_TYPE, CampfireCookingOnGrillCategory.RECIPE_TYPE, SeasoningCategory.RECIPE_TYPE);
-        registration.addRecipeCatalyst(SimpleBBQRegistry.SKEWERING_TABLE_BLOCK_ITEM.get().getDefaultInstance(), SkeweringCategory.RECIPE_TYPE);
+        registration.addRecipeCatalyst(SimpleBBQRegistry.GRILL_BLOCK_ITEM.getDefaultInstance(), GrillCookingCategory.RECIPE_TYPE, CampfireCookingOnGrillCategory.RECIPE_TYPE, SeasoningCategory.RECIPE_TYPE);
+        registration.addRecipeCatalyst(SimpleBBQRegistry.SKEWERING_TABLE_BLOCK_ITEM.getDefaultInstance(), SkeweringCategory.RECIPE_TYPE);
     }
 }

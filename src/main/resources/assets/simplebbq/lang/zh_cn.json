@@ -2,7 +2,7 @@
   "itemGroup.simplebbq": "简易烧烤",
   "block.simplebbq.grill": "烤架",
   "block.simplebbq.skewering_table": "制串台",
-  "entity.minecraft.villager.simplebbq.skewerman": "制串师",
+  "entity.minecraft.villager.skewerman": "制串师",
   "item.simplebbq.chili_powder": "辣椒粉",
   "item.simplebbq.cumin": "孜然",
   "item.simplebbq.salt_and_pepper": "椒盐",

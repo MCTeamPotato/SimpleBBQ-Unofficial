@@ -1,6 +1,5 @@
 package com.sihenzhang.simplebbq.item;
 
-import com.sihenzhang.simplebbq.SimpleBBQ;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
@@ -49,7 +48,7 @@ public class SkewerItem extends Item {
         }
 
         public Builder(Item baseItem, int nutritionModifier, float saturationModifier) {
-            var baseFoodProperties = baseItem.getFoodProperties(baseItem.getDefaultInstance(), null);
+            var baseFoodProperties = baseItem.getFoodProperties();
             if (baseFoodProperties != null) {
                 this.foodBuilder = this.foodBuilder.nutrition(baseFoodProperties.getNutrition() + nutritionModifier).saturationMod(baseFoodProperties.getSaturationModifier() + saturationModifier);
                 if (baseFoodProperties.isMeat()) {
@@ -62,7 +61,7 @@ public class SkewerItem extends Item {
                     this.duration = 16;
                 }
                 if (!baseFoodProperties.getEffects().isEmpty()) {
-                    baseFoodProperties.getEffects().forEach(e -> this.foodBuilder = this.foodBuilder.effect(e::getFirst, e.getSecond()));
+                    baseFoodProperties.getEffects().forEach(e -> this.foodBuilder = this.foodBuilder.effect(e.getFirst(), e.getSecond()));
                 }
             }
         }
@@ -93,7 +92,7 @@ public class SkewerItem extends Item {
         }
 
         public Builder effect(Supplier<MobEffectInstance> effect, float probability) {
-            foodBuilder = foodBuilder.effect(effect, probability);
+            foodBuilder = foodBuilder.effect(effect.get(), probability);
             return this;
         }
 

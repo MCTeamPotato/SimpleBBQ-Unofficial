@@ -1,7 +1,7 @@
 {
   "replace": false,
   "values": [
-    "#forge:rods/wooden",
+    "#c:wooden_rods",
     "minecraft:bamboo"
   ]
 }

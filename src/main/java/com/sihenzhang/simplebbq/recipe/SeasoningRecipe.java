@@ -104,12 +104,12 @@ public class SeasoningRecipe implements Recipe<Container> {
 
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return SimpleBBQRegistry.SEASONING_RECIPE_SERIALIZER.get();
+        return SimpleBBQRegistry.SEASONING_RECIPE_SERIALIZER;
     }
 
     @Override
     public RecipeType<?> getType() {
-        return SimpleBBQRegistry.SEASONING_RECIPE_TYPE.get();
+        return SimpleBBQRegistry.SEASONING_RECIPE_TYPE;
     }
 
     public static class Serializer implements RecipeSerializer<SeasoningRecipe> {

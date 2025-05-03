@@ -7,17 +7,15 @@ import mezz.jei.api.gui.drawable.IDrawableAnimated;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.RecipeType;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CampfireCookingRecipe;
-import org.jetbrains.annotations.Nullable;
 
 public class CampfireCookingOnGrillCategory extends AbstractCookingWithoutFuelAndXpCategory<CampfireCookingRecipe> {
     public static final RecipeType<CampfireCookingRecipe> RECIPE_TYPE = RecipeType.create(SimpleBBQ.MOD_ID, "campfire_cooking_on_grill", CampfireCookingRecipe.class);
 
     public CampfireCookingOnGrillCategory(IGuiHelper guiHelper) {
-        super(guiHelper, new DrawableDoubleItemStack(SimpleBBQRegistry.GRILL_BLOCK_ITEM.get().getDefaultInstance(), Items.CAMPFIRE.getDefaultInstance()), "category.campfire_cooking_on_grill", 400);
+        super(guiHelper, new DrawableDoubleItemStack(SimpleBBQRegistry.GRILL_BLOCK_ITEM.getDefaultInstance(), Items.CAMPFIRE.getDefaultInstance()), "category.campfire_cooking_on_grill", 400);
     }
 
     @Override

@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "id": "simplebbq",
+  "version": "${version}",
+  "name": "Simple BBQ Unofficial",
+  "description": "Relaxing and Enjoyable Barbecue.",
+  "authors": [
+    "Si_hen", "VVVHY", "idyllicbean", "SeraphJack", "TeamPotato"
+  ],
+  "contact": {
+    "homepage": "https://github.com/MCTeamPotato/",
+    "sources": "https://github.com/MCTeamPotato/SimpleBBQ-Unofficial/issues"
+  },
+  "license": "CC0-1.0",
+  "icon": "logo.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.sihenzhang.simplebbq.SimpleBBQ"
+    ],
+    "client": [
+      "com.sihenzhang.simplebbq.client.SimpleBBQClient"
+    ],
+    "fabric-datagen": [
+      "com.sihenzhang.simplebbq.data.DataGen"
+    ],
+    "jei_mod_plugin": [
+      "com.sihenzhang.simplebbq.integration.jei.ModIntegrationJei"
+    ]
+  },
+  "accessWidener" : "simplebbq.accesswidener",
+  "mixins": [
+    "simplebbq.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": "*",
+    "minecraft": "~1.20.1",
+    "fabric-api": "*",
+    "forgeconfigapiport": "*"
+  },
+  "custom": {
+    "loom:injected_interfaces": {
+      "net/minecraft/class_2248": ["com/sihenzhang/simplebbq/thirdparty/extensions/BlockExtension"],
+      "net/minecraft/class_2680": ["com/sihenzhang/simplebbq/thirdparty/extensions/BlockStateExtension"]
+    },
+    "banner": "banner.png"
+  }
+}

@@ -6,38 +6,39 @@ import com.sihenzhang.simplebbq.data.recipes.GrillCookingRecipeBuilder;
 import com.sihenzhang.simplebbq.data.recipes.SeasoningRecipeBuilder;
 import com.sihenzhang.simplebbq.data.recipes.SkeweringRecipeBuilder;
 import com.sihenzhang.simplebbq.tag.SimpleBBQItemTags;
-import net.minecraft.data.PackOutput;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
+import net.fabricmc.fabric.api.tag.convention.v1.ConventionalItemTags;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeCategory;
-import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraftforge.common.Tags;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
-public class SimpleBBQRecipeProvider extends RecipeProvider {
-    public SimpleBBQRecipeProvider(PackOutput output) {
+public class SimpleBBQRecipeProvider extends FabricRecipeProvider {
+    public SimpleBBQRecipeProvider(FabricDataOutput output) {
         super(output);
     }
 
     @Override
-    protected void buildRecipes(Consumer<FinishedRecipe> pFinishedRecipeConsumer) {
+    public void buildRecipes(Consumer<FinishedRecipe> pFinishedRecipeConsumer) {
         // crafting recipe
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, SimpleBBQRegistry.GRILL_BLOCK.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, SimpleBBQRegistry.GRILL_BLOCK)
                 .define('#', Blocks.IRON_TRAPDOOR)
-                .define('X', Tags.Items.INGOTS_IRON)
-                .define('I', Tags.Items.RODS_WOODEN)
+                .define('X', ConventionalItemTags.IRON_INGOTS)
+                .define('I', SimpleBBQItemTags.WOOD_STICK)
                 .pattern("X#X")
                 .pattern("I I")
                 .pattern("I I")
                 .unlockedBy("has_iron_ingot", has(Items.IRON_INGOT))
                 .save(pFinishedRecipeConsumer);
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, SimpleBBQRegistry.SKEWERING_TABLE_BLOCK.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, SimpleBBQRegistry.SKEWERING_TABLE_BLOCK)
                 .define('#', ItemTags.PLANKS)
                 .define('_', Blocks.SMOOTH_STONE_SLAB)
                 .pattern("__")
@@ -47,34 +48,34 @@ public class SimpleBBQRecipeProvider extends RecipeProvider {
                 .save(pFinishedRecipeConsumer);
 
         // skewering recipe
-        skeweringRecipe(pFinishedRecipeConsumer, Items.BEEF, SimpleBBQRegistry.BEEF_SKEWER.get());
-        skeweringRecipe(pFinishedRecipeConsumer, Items.CHICKEN, SimpleBBQRegistry.CHICKEN_SKEWER.get());
-        skeweringRecipe(pFinishedRecipeConsumer, Items.MUTTON, SimpleBBQRegistry.MUTTON_SKEWER.get());
-        skeweringRecipe(pFinishedRecipeConsumer, Items.PORKCHOP, SimpleBBQRegistry.PORK_SKEWER.get());
-        skeweringRecipe(pFinishedRecipeConsumer, Items.RABBIT, SimpleBBQRegistry.RABBIT_SKEWER.get());
-        skeweringRecipe(pFinishedRecipeConsumer, Items.COD, SimpleBBQRegistry.COD_SKEWER.get());
-        skeweringRecipe(pFinishedRecipeConsumer, Items.SALMON, SimpleBBQRegistry.SALMON_SKEWER.get());
-        skeweringRecipe(pFinishedRecipeConsumer, Items.BREAD, SimpleBBQRegistry.BREAD_SLICE_SKEWER.get());
-        skeweringRecipe(pFinishedRecipeConsumer, Items.BROWN_MUSHROOM, SimpleBBQRegistry.MUSHROOM_SKEWER.get());
-        skeweringRecipe(pFinishedRecipeConsumer, Items.POTATO, SimpleBBQRegistry.POTATO_SKEWER.get());
+        skeweringRecipe(pFinishedRecipeConsumer, Items.BEEF, SimpleBBQRegistry.BEEF_SKEWER);
+        skeweringRecipe(pFinishedRecipeConsumer, Items.CHICKEN, SimpleBBQRegistry.CHICKEN_SKEWER);
+        skeweringRecipe(pFinishedRecipeConsumer, Items.MUTTON, SimpleBBQRegistry.MUTTON_SKEWER);
+        skeweringRecipe(pFinishedRecipeConsumer, Items.PORKCHOP, SimpleBBQRegistry.PORK_SKEWER);
+        skeweringRecipe(pFinishedRecipeConsumer, Items.RABBIT, SimpleBBQRegistry.RABBIT_SKEWER);
+        skeweringRecipe(pFinishedRecipeConsumer, Items.COD, SimpleBBQRegistry.COD_SKEWER);
+        skeweringRecipe(pFinishedRecipeConsumer, Items.SALMON, SimpleBBQRegistry.SALMON_SKEWER);
+        skeweringRecipe(pFinishedRecipeConsumer, Items.BREAD, SimpleBBQRegistry.BREAD_SLICE_SKEWER);
+        skeweringRecipe(pFinishedRecipeConsumer, Items.BROWN_MUSHROOM, SimpleBBQRegistry.MUSHROOM_SKEWER);
+        skeweringRecipe(pFinishedRecipeConsumer, Items.POTATO, SimpleBBQRegistry.POTATO_SKEWER);
 
         // skewer cooking recipe
-        grillCookingRecipe(pFinishedRecipeConsumer, SimpleBBQRegistry.BEEF_SKEWER.get(), SimpleBBQRegistry.COOKED_BEEF_SKEWER.get(), 300);
-        grillCookingRecipe(pFinishedRecipeConsumer, SimpleBBQRegistry.CHICKEN_SKEWER.get(), SimpleBBQRegistry.COOKED_CHICKEN_SKEWER.get(), 300);
-        grillCookingRecipe(pFinishedRecipeConsumer, SimpleBBQRegistry.MUTTON_SKEWER.get(), SimpleBBQRegistry.COOKED_MUTTON_SKEWER.get(), 300);
-        grillCookingRecipe(pFinishedRecipeConsumer, SimpleBBQRegistry.PORK_SKEWER.get(), SimpleBBQRegistry.COOKED_PORK_SKEWER.get(), 300);
-        grillCookingRecipe(pFinishedRecipeConsumer, SimpleBBQRegistry.RABBIT_SKEWER.get(), SimpleBBQRegistry.COOKED_RABBIT_SKEWER.get(), 300);
-        grillCookingRecipe(pFinishedRecipeConsumer, SimpleBBQRegistry.COD_SKEWER.get(), SimpleBBQRegistry.COOKED_COD_SKEWER.get(), 300);
-        grillCookingRecipe(pFinishedRecipeConsumer, SimpleBBQRegistry.SALMON_SKEWER.get(), SimpleBBQRegistry.COOKED_SALMON_SKEWER.get(), 300);
-        grillCookingRecipe(pFinishedRecipeConsumer, SimpleBBQRegistry.BREAD_SLICE_SKEWER.get(), SimpleBBQRegistry.TOAST_SKEWER.get(), 300);
-        grillCookingRecipe(pFinishedRecipeConsumer, SimpleBBQRegistry.MUSHROOM_SKEWER.get(), SimpleBBQRegistry.ROASTED_MUSHROOM_SKEWER.get(), 300);
-        grillCookingRecipe(pFinishedRecipeConsumer, SimpleBBQRegistry.POTATO_SKEWER.get(), SimpleBBQRegistry.BAKED_POTATO_SKEWER.get(), 300);
+        grillCookingRecipe(pFinishedRecipeConsumer, SimpleBBQRegistry.BEEF_SKEWER, SimpleBBQRegistry.COOKED_BEEF_SKEWER, 300);
+        grillCookingRecipe(pFinishedRecipeConsumer, SimpleBBQRegistry.CHICKEN_SKEWER, SimpleBBQRegistry.COOKED_CHICKEN_SKEWER, 300);
+        grillCookingRecipe(pFinishedRecipeConsumer, SimpleBBQRegistry.MUTTON_SKEWER, SimpleBBQRegistry.COOKED_MUTTON_SKEWER, 300);
+        grillCookingRecipe(pFinishedRecipeConsumer, SimpleBBQRegistry.PORK_SKEWER, SimpleBBQRegistry.COOKED_PORK_SKEWER, 300);
+        grillCookingRecipe(pFinishedRecipeConsumer, SimpleBBQRegistry.RABBIT_SKEWER, SimpleBBQRegistry.COOKED_RABBIT_SKEWER, 300);
+        grillCookingRecipe(pFinishedRecipeConsumer, SimpleBBQRegistry.COD_SKEWER, SimpleBBQRegistry.COOKED_COD_SKEWER, 300);
+        grillCookingRecipe(pFinishedRecipeConsumer, SimpleBBQRegistry.SALMON_SKEWER, SimpleBBQRegistry.COOKED_SALMON_SKEWER, 300);
+        grillCookingRecipe(pFinishedRecipeConsumer, SimpleBBQRegistry.BREAD_SLICE_SKEWER, SimpleBBQRegistry.TOAST_SKEWER, 300);
+        grillCookingRecipe(pFinishedRecipeConsumer, SimpleBBQRegistry.MUSHROOM_SKEWER, SimpleBBQRegistry.ROASTED_MUSHROOM_SKEWER, 300);
+        grillCookingRecipe(pFinishedRecipeConsumer, SimpleBBQRegistry.POTATO_SKEWER, SimpleBBQRegistry.BAKED_POTATO_SKEWER, 300);
 
         // seasoning recipe
         seasoningRecipe(pFinishedRecipeConsumer, Ingredient.of(SimpleBBQItemTags.CAN_BE_SEASONED_BY_HONEY), Items.HONEY_BOTTLE, "honey");
-        seasoningRecipe(pFinishedRecipeConsumer, Ingredient.of(SimpleBBQItemTags.CAN_BE_SEASONED_BY_CHILI_POWDER), SimpleBBQRegistry.CHILI_POWDER.get());
-        seasoningRecipe(pFinishedRecipeConsumer, Ingredient.of(SimpleBBQItemTags.CAN_BE_SEASONED_BY_CUMIN), SimpleBBQRegistry.CUMIN.get());
-        seasoningRecipe(pFinishedRecipeConsumer, Ingredient.of(SimpleBBQItemTags.CAN_BE_SEASONED_BY_SALT_AND_PEPPER), SimpleBBQRegistry.SALT_AND_PEPPER.get());
+        seasoningRecipe(pFinishedRecipeConsumer, Ingredient.of(SimpleBBQItemTags.CAN_BE_SEASONED_BY_CHILI_POWDER), SimpleBBQRegistry.CHILI_POWDER);
+        seasoningRecipe(pFinishedRecipeConsumer, Ingredient.of(SimpleBBQItemTags.CAN_BE_SEASONED_BY_CUMIN), SimpleBBQRegistry.CUMIN);
+        seasoningRecipe(pFinishedRecipeConsumer, Ingredient.of(SimpleBBQItemTags.CAN_BE_SEASONED_BY_SALT_AND_PEPPER), SimpleBBQRegistry.SALT_AND_PEPPER);
     }
 
     protected static void grillCookingRecipe(Consumer<FinishedRecipe> pFinishedRecipeConsumer, ItemLike pIngredient, ItemLike pResult, int pCookingTime) {
@@ -105,7 +106,7 @@ public class SimpleBBQRecipeProvider extends RecipeProvider {
         SeasoningRecipeBuilder.seasoning(pIngredient, Ingredient.of(pSeasoning), name).save(pFinishedRecipeConsumer, getSimpleRecipeName("seasoning", name));
     }
 
-    protected static String getSimpleRecipeName(ItemLike pItemLike) {
+    public static @NotNull String getSimpleRecipeName(ItemLike pItemLike) {
         return getSimpleRecipeName(getItemName(pItemLike));
     }
 

@@ -2,7 +2,7 @@
   "itemGroup.simplebbq": "Simple BBQ",
   "block.simplebbq.grill": "Grill",
   "block.simplebbq.skewering_table": "Skewering Table",
-  "entity.minecraft.villager.simplebbq.skewerman": "Skewerman",
+  "entity.minecraft.villager.skewerman": "Skewerman",
   "item.simplebbq.chili_powder": "Chili Powder",
   "item.simplebbq.cumin": "Cumin",
   "item.simplebbq.salt_and_pepper": "Salt and Pepper",

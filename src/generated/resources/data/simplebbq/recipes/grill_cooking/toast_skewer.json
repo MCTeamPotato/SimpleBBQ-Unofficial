@@ -1,8 +1,8 @@
 {
   "type": "simplebbq:grill_cooking",
+  "cookingtime": 300,
   "ingredient": {
     "item": "simplebbq:bread_slice_skewer"
   },
-  "result": "simplebbq:toast_skewer",
-  "cookingtime": 300
+  "result": "simplebbq:toast_skewer"
 }

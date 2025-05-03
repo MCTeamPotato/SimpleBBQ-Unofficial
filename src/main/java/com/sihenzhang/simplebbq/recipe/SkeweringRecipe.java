@@ -71,7 +71,7 @@ public class SkeweringRecipe implements Recipe<Container> {
 
     @Override
     public ItemStack getToastSymbol() {
-        return SimpleBBQRegistry.SKEWERING_TABLE_BLOCK_ITEM.get().getDefaultInstance();
+        return SimpleBBQRegistry.SKEWERING_TABLE_BLOCK_ITEM.getDefaultInstance();
     }
 
     @Override
@@ -81,12 +81,12 @@ public class SkeweringRecipe implements Recipe<Container> {
 
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return SimpleBBQRegistry.SKEWERING_RECIPE_SERIALIZER.get();
+        return SimpleBBQRegistry.SKEWERING_RECIPE_SERIALIZER;
     }
 
     @Override
     public RecipeType<?> getType() {
-        return SimpleBBQRegistry.SKEWERING_RECIPE_TYPE.get();
+        return SimpleBBQRegistry.SKEWERING_RECIPE_TYPE;
     }
 
     public static class Serializer implements RecipeSerializer<SkeweringRecipe> {

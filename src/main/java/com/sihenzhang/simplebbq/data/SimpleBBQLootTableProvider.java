@@ -1,42 +1,40 @@
 package com.sihenzhang.simplebbq.data;
 
 import com.sihenzhang.simplebbq.SimpleBBQRegistry;
+import io.github.fabricators_of_create.porting_lib.data.ModdedBlockLootSubProvider;
+import io.github.fabricators_of_create.porting_lib.data.ModdedLootTableProvider;
 import net.minecraft.data.PackOutput;
-import net.minecraft.data.loot.BlockLootSubProvider;
-import net.minecraft.data.loot.LootTableProvider;
-import net.minecraft.data.loot.LootTableSubProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
-import net.minecraftforge.registries.RegistryObject;
 
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
-public class SimpleBBQLootTableProvider extends LootTableProvider {
+public class SimpleBBQLootTableProvider extends ModdedLootTableProvider {
     public SimpleBBQLootTableProvider(PackOutput output) {
         super(output, Set.of(), List.of(
             new SubProviderEntry(SimpleBBQBlockLoot::new, LootContextParamSets.BLOCK)
         ));
     }
 
-    public static class SimpleBBQBlockLoot extends BlockLootSubProvider {
+    public static class SimpleBBQBlockLoot extends ModdedBlockLootSubProvider {
         public SimpleBBQBlockLoot() {
             super(Set.of(), FeatureFlags.REGISTRY.allFlags());
         }
 
         @Override
-        protected void generate() {
-            this.dropSelf(SimpleBBQRegistry.GRILL_BLOCK.get());
-            this.dropSelf(SimpleBBQRegistry.SKEWERING_TABLE_BLOCK.get());
+        public void generate() {
+            this.dropSelf(SimpleBBQRegistry.GRILL_BLOCK);
+            this.dropSelf(SimpleBBQRegistry.SKEWERING_TABLE_BLOCK);
         }
 
         @Override
         protected Iterable<Block> getKnownBlocks() {
-            return SimpleBBQRegistry.BLOCKS.getEntries().stream().map(RegistryObject::get).toList();
+            return SimpleBBQRegistry.BLOCKS.values().stream().toList();
         }
 
         @Override

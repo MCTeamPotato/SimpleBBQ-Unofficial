@@ -1,55 +1,65 @@
 package com.sihenzhang.simplebbq.data;
 
 import com.google.common.collect.ImmutableSet;
-import com.sihenzhang.simplebbq.SimpleBBQ;
 import com.sihenzhang.simplebbq.SimpleBBQRegistry;
 import com.sihenzhang.simplebbq.tag.SimpleBBQItemTags;
+import com.sihenzhang.simplebbq.util.ResourceKeyUtils;
+import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.data.PackOutput;
-import net.minecraft.data.tags.ItemTagsProvider;
-import net.minecraft.world.item.Item;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.Block;
-import net.minecraftforge.common.Tags;
-import net.minecraftforge.common.data.ExistingFileHelper;
 
-import javax.annotation.Nullable;
 import java.util.concurrent.CompletableFuture;
 
-public class SimpleBBQItemTagsProvider extends ItemTagsProvider {
-    public SimpleBBQItemTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, CompletableFuture<TagLookup<Block>> blockTags, @Nullable ExistingFileHelper existingFileHelper) {
-        super(output, lookupProvider, blockTags, SimpleBBQ.MOD_ID, existingFileHelper);
+public class SimpleBBQItemTagsProvider extends FabricTagProvider.ItemTagProvider {
+    public SimpleBBQItemTagsProvider(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, BlockTagProvider blockTags) {
+        super(output, lookupProvider, blockTags);
     }
 
     @Override
     protected void addTags(HolderLookup.Provider provider) {
-        this.tag(SimpleBBQItemTags.SKEWER).addTag(Tags.Items.RODS_WOODEN).add(Items.BAMBOO);
-        this.tag(SimpleBBQItemTags.SEASONING).add(Items.HONEY_BOTTLE, SimpleBBQRegistry.CHILI_POWDER.get(), SimpleBBQRegistry.CUMIN.get(), SimpleBBQRegistry.SALT_AND_PEPPER.get());
+        this.tag(SimpleBBQItemTags.SKEWER)
+                .addTag(SimpleBBQItemTags.WOOD_STICK)
+                .add(ResourceKeyUtils.getItemResourceKey(Items.BAMBOO));
+        this.tag(SimpleBBQItemTags.SEASONING)
+                .add(
+                        ResourceKeyUtils.getItemResourceKey(Items.HONEY_BOTTLE),
+                        ResourceKeyUtils.getItemResourceKey(SimpleBBQRegistry.CHILI_POWDER),
+                        ResourceKeyUtils.getItemResourceKey(SimpleBBQRegistry.CUMIN),
+                        ResourceKeyUtils.getItemResourceKey(SimpleBBQRegistry.SALT_AND_PEPPER)
+                );
 
         var allRawSkewers = ImmutableSet.of(
-                SimpleBBQRegistry.BEEF_SKEWER.get(),
-                SimpleBBQRegistry.CHICKEN_SKEWER.get(),
-                SimpleBBQRegistry.MUTTON_SKEWER.get(),
-                SimpleBBQRegistry.PORK_SKEWER.get(),
-                SimpleBBQRegistry.RABBIT_SKEWER.get(),
-                SimpleBBQRegistry.COD_SKEWER.get(),
-                SimpleBBQRegistry.SALMON_SKEWER.get(),
-                SimpleBBQRegistry.BREAD_SLICE_SKEWER.get(),
-                SimpleBBQRegistry.MUSHROOM_SKEWER.get(),
-                SimpleBBQRegistry.POTATO_SKEWER.get()
+                SimpleBBQRegistry.BEEF_SKEWER,
+                SimpleBBQRegistry.CHICKEN_SKEWER,
+                SimpleBBQRegistry.MUTTON_SKEWER,
+                SimpleBBQRegistry.PORK_SKEWER,
+                SimpleBBQRegistry.RABBIT_SKEWER,
+                SimpleBBQRegistry.COD_SKEWER,
+                SimpleBBQRegistry.SALMON_SKEWER,
+                SimpleBBQRegistry.BREAD_SLICE_SKEWER,
+                SimpleBBQRegistry.MUSHROOM_SKEWER,
+                SimpleBBQRegistry.POTATO_SKEWER
         );
         var cannotBeSeasonedByHoney = ImmutableSet.of(
-                SimpleBBQRegistry.COD_SKEWER.get(),
-                SimpleBBQRegistry.SALMON_SKEWER.get()
+                SimpleBBQRegistry.COD_SKEWER,
+                SimpleBBQRegistry.SALMON_SKEWER
         );
-        var cannotBeSeasonedByChiliPowder = ImmutableSet.of(SimpleBBQRegistry.BREAD_SLICE_SKEWER.get());
-        var cannotBeSeasonedByCumin = ImmutableSet.of(SimpleBBQRegistry.BREAD_SLICE_SKEWER.get());
-        var cannotBeSeasonedBySaltAndPepper = ImmutableSet.of(SimpleBBQRegistry.BREAD_SLICE_SKEWER.get());
+        var cannotBeSeasonedByChiliPowder = ImmutableSet.of(SimpleBBQRegistry.BREAD_SLICE_SKEWER);
+        var cannotBeSeasonedByCumin = ImmutableSet.of(SimpleBBQRegistry.BREAD_SLICE_SKEWER);
+        var cannotBeSeasonedBySaltAndPepper = ImmutableSet.of(SimpleBBQRegistry.BREAD_SLICE_SKEWER);
 
-        this.tag(SimpleBBQItemTags.CAN_BE_SEASONED_BY_HONEY).add(allRawSkewers.stream().filter(item -> !cannotBeSeasonedByHoney.contains(item)).toArray(Item[]::new));
-        this.tag(SimpleBBQItemTags.CAN_BE_SEASONED_BY_CHILI_POWDER).add(allRawSkewers.stream().filter(item -> !cannotBeSeasonedByChiliPowder.contains(item)).toArray(Item[]::new));
-        this.tag(SimpleBBQItemTags.CAN_BE_SEASONED_BY_CUMIN).add(allRawSkewers.stream().filter(item -> !cannotBeSeasonedByCumin.contains(item)).toArray(Item[]::new));
-        this.tag(SimpleBBQItemTags.CAN_BE_SEASONED_BY_SALT_AND_PEPPER).add(allRawSkewers.stream().filter(item -> !cannotBeSeasonedBySaltAndPepper.contains(item)).toArray(Item[]::new));
+        this.tag(SimpleBBQItemTags.CAN_BE_SEASONED_BY_HONEY).add(allRawSkewers.stream().filter(item -> !cannotBeSeasonedByHoney.contains(item)).map(ResourceKeyUtils::getItemResourceKey).toArray(ResourceKey[]::new));
+        this.tag(SimpleBBQItemTags.CAN_BE_SEASONED_BY_CHILI_POWDER).add(allRawSkewers.stream().filter(item -> !cannotBeSeasonedByChiliPowder.contains(item)).map(ResourceKeyUtils::getItemResourceKey).toArray(ResourceKey[]::new));
+        this.tag(SimpleBBQItemTags.CAN_BE_SEASONED_BY_CUMIN).add(allRawSkewers.stream().filter(item -> !cannotBeSeasonedByCumin.contains(item)).map(ResourceKeyUtils::getItemResourceKey).toArray(ResourceKey[]::new));
+        this.tag(SimpleBBQItemTags.CAN_BE_SEASONED_BY_SALT_AND_PEPPER).add(allRawSkewers.stream().filter(item -> !cannotBeSeasonedBySaltAndPepper.contains(item)).map(ResourceKeyUtils::getItemResourceKey).toArray(ResourceKey[]::new));
+
+        addConventionItemTags();
+    }
+
+    private void addConventionItemTags() {
+        this.tag(SimpleBBQItemTags.WOOD_STICK).add(ResourceKeyUtils.getItemResourceKey(Items.STICK));
     }
 
     @Override

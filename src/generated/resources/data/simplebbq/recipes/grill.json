@@ -1,22 +1,24 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": {
+      "item": "minecraft:iron_trapdoor"
+    },
+    "I": {
+      "tag": "c:wooden_rods"
+    },
+    "X": {
+      "tag": "c:iron_ingots"
+    }
+  },
   "pattern": [
     "X#X",
     "I I",
     "I I"
   ],
-  "key": {
-    "#": {
-      "item": "minecraft:iron_trapdoor"
-    },
-    "X": {
-      "tag": "forge:ingots/iron"
-    },
-    "I": {
-      "tag": "forge:rods/wooden"
-    }
-  },
   "result": {
     "item": "simplebbq:grill"
-  }
+  },
+  "show_notification": true
 }

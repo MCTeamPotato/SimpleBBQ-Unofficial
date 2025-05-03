@@ -2,11 +2,11 @@
   "parent": "minecraft:block/cube",
   "textures": {
     "down": "simplebbq:block/skewering_table_bottom",
-    "up": "minecraft:block/smooth_stone",
-    "north": "simplebbq:block/skewering_table_front",
-    "south": "simplebbq:block/skewering_table_front",
     "east": "simplebbq:block/skewering_table_side",
-    "west": "simplebbq:block/skewering_table_side",
-    "particle": "simplebbq:block/skewering_table_front"
+    "north": "simplebbq:block/skewering_table_front",
+    "particle": "simplebbq:block/skewering_table_front",
+    "south": "simplebbq:block/skewering_table_front",
+    "up": "minecraft:block/smooth_stone",
+    "west": "simplebbq:block/skewering_table_side"
   }
 }

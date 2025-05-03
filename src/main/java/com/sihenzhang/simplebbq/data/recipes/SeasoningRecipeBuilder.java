@@ -76,7 +76,7 @@ public class SeasoningRecipeBuilder implements RecipeBuilder {
 
         @Override
         public RecipeSerializer<?> getType() {
-            return SimpleBBQRegistry.SEASONING_RECIPE_SERIALIZER.get();
+            return SimpleBBQRegistry.SEASONING_RECIPE_SERIALIZER;
         }
 
         @Nullable

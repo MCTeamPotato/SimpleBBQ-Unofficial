@@ -1,6 +1,11 @@
 package com.sihenzhang.simplebbq.block.entity;
 
 import com.sihenzhang.simplebbq.SimpleBBQRegistry;
+import com.sihenzhang.simplebbq.thirdparty.transfer.ItemTransferHelper;
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemHandlerHelper;
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandlerContainer;
+import io.github.fabricators_of_create.porting_lib.transfer.item.RecipeWrapper;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -14,18 +19,15 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.items.ItemHandlerHelper;
-import net.minecraftforge.items.ItemStackHandler;
-import net.minecraftforge.items.wrapper.RecipeWrapper;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class SkeweringTableBlockEntity extends BlockEntity {
-    private final ItemStackHandler inventory = new ItemStackHandler(1) {
+    private final ItemStackHandlerContainer inventory = new ItemStackHandlerContainer(1) {
         @Override
-        public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
-            return level.getRecipeManager().getRecipeFor(SimpleBBQRegistry.SKEWERING_RECIPE_TYPE.get(), new SimpleContainer(stack), level).isPresent();
+        public boolean isItemValid(int slot, @Nonnull ItemVariant itemVariant, int count) {
+            return level.getRecipeManager().getRecipeFor(SimpleBBQRegistry.SKEWERING_RECIPE_TYPE, new SimpleContainer(itemVariant.toStack(count)), level).isPresent();
         }
 
         @Override
@@ -36,10 +38,10 @@ public class SkeweringTableBlockEntity extends BlockEntity {
     };
 
     public SkeweringTableBlockEntity(BlockPos pWorldPosition, BlockState pBlockState) {
-        super(SimpleBBQRegistry.SKEWERING_TABLE_BLOCK_ENTITY.get(), pWorldPosition, pBlockState);
+        super(SimpleBBQRegistry.SKEWERING_TABLE_BLOCK_ENTITY, pWorldPosition, pBlockState);
     }
 
-    public ItemStackHandler getInventory() {
+    public ItemStackHandlerContainer getInventory() {
         return inventory;
     }
 
@@ -69,7 +71,7 @@ public class SkeweringTableBlockEntity extends BlockEntity {
     }
 
     public boolean canBeSkewered(ItemStack stack) {
-        return level.getRecipeManager().getRecipeFor(SimpleBBQRegistry.SKEWERING_RECIPE_TYPE.get(), new SimpleContainer(stack), level).isPresent();
+        return level.getRecipeManager().getRecipeFor(SimpleBBQRegistry.SKEWERING_RECIPE_TYPE, new SimpleContainer(stack), level).isPresent();
     }
 
     public boolean placeFood(Player player, InteractionHand hand) {
@@ -77,7 +79,7 @@ public class SkeweringTableBlockEntity extends BlockEntity {
         if (stackInHand.isEmpty()) {
             return false;
         }
-        var remainStack = inventory.insertItem(0, player.getAbilities().instabuild ? stackInHand.copy() : stackInHand, false);
+        var remainStack = ItemTransferHelper.insertItem(inventory, 0, player.getAbilities().instabuild ? stackInHand.copy() : stackInHand, false);
         if (remainStack.getCount() == stackInHand.getCount()) {
             return false;
         }
@@ -105,7 +107,7 @@ public class SkeweringTableBlockEntity extends BlockEntity {
             return false;
         }
         var container = new RecipeWrapper(inventory);
-        var optionalRecipe = level.getRecipeManager().getRecipeFor(SimpleBBQRegistry.SKEWERING_RECIPE_TYPE.get(), container, level);
+        var optionalRecipe = level.getRecipeManager().getRecipeFor(SimpleBBQRegistry.SKEWERING_RECIPE_TYPE, container, level);
         if (optionalRecipe.isEmpty()) {
             return false;
         }
@@ -113,7 +115,7 @@ public class SkeweringTableBlockEntity extends BlockEntity {
         var result = recipe.assemble(container, level.registryAccess());
         var resultCount = player != null && player.isSteppingCarefully() ? Math.min(skewer.getCount(), inventory.getStackInSlot(0).getCount() / recipe.getCount()) : 1;
         result.setCount(resultCount);
-        inventory.extractItem(0, recipe.getCount() * resultCount, false);
+        ItemTransferHelper.extractItem(inventory, 0, recipe.getCount() * resultCount, false);
         skewer.shrink(resultCount);
         if (player != null) {
             ItemHandlerHelper.giveItemToPlayer(player, result);
