@@ -1,6 +1,7 @@
 package com.sihenzhang.simplebbq;
 
 import com.sihenzhang.simplebbq.levelgen.VillageStructures;
+import com.sihenzhang.simplebbq.util.RLUtils;
 import fuzs.forgeconfigapiport.api.config.v2.ForgeConfigRegistry;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
@@ -36,7 +37,7 @@ public class SimpleBBQ implements ModInitializer {
 
         VillageStructures.addNewVillageBuilding();
 
-        Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, new ResourceLocation(MOD_ID, "item_group"), TAB);
+        Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, RLUtils.createRL("tab"), TAB);
 
         ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.FOOD_AND_DRINKS).register(entries -> {
             // 添加食物类物品到食物和饮料标签页

@@ -2,12 +2,12 @@ package com.sihenzhang.simplebbq.data;
 
 import com.google.common.collect.ImmutableSet;
 import com.sihenzhang.simplebbq.SimpleBBQRegistry;
+import com.sihenzhang.simplebbq.tag.ConventionItemTags;
 import com.sihenzhang.simplebbq.tag.SimpleBBQItemTags;
-import com.sihenzhang.simplebbq.util.ResourceKeyUtils;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
 import java.util.concurrent.CompletableFuture;
@@ -19,15 +19,15 @@ public class SimpleBBQItemTagsProvider extends FabricTagProvider.ItemTagProvider
 
     @Override
     protected void addTags(HolderLookup.Provider provider) {
-        this.tag(SimpleBBQItemTags.SKEWER)
-                .addTag(SimpleBBQItemTags.WOOD_STICK)
-                .add(ResourceKeyUtils.getItemResourceKey(Items.BAMBOO));
-        this.tag(SimpleBBQItemTags.SEASONING)
+        this.getOrCreateTagBuilder(SimpleBBQItemTags.SKEWER)
+                .addTag(ConventionItemTags.WOOD_RODS)
+                .add(Items.BAMBOO);
+        this.getOrCreateTagBuilder(SimpleBBQItemTags.SEASONING)
                 .add(
-                        ResourceKeyUtils.getItemResourceKey(Items.HONEY_BOTTLE),
-                        ResourceKeyUtils.getItemResourceKey(SimpleBBQRegistry.CHILI_POWDER),
-                        ResourceKeyUtils.getItemResourceKey(SimpleBBQRegistry.CUMIN),
-                        ResourceKeyUtils.getItemResourceKey(SimpleBBQRegistry.SALT_AND_PEPPER)
+                        Items.HONEY_BOTTLE,
+                        SimpleBBQRegistry.CHILI_POWDER,
+                        SimpleBBQRegistry.CUMIN,
+                        SimpleBBQRegistry.SALT_AND_PEPPER
                 );
 
         var allRawSkewers = ImmutableSet.of(
@@ -50,16 +50,16 @@ public class SimpleBBQItemTagsProvider extends FabricTagProvider.ItemTagProvider
         var cannotBeSeasonedByCumin = ImmutableSet.of(SimpleBBQRegistry.BREAD_SLICE_SKEWER);
         var cannotBeSeasonedBySaltAndPepper = ImmutableSet.of(SimpleBBQRegistry.BREAD_SLICE_SKEWER);
 
-        this.tag(SimpleBBQItemTags.CAN_BE_SEASONED_BY_HONEY).add(allRawSkewers.stream().filter(item -> !cannotBeSeasonedByHoney.contains(item)).map(ResourceKeyUtils::getItemResourceKey).toArray(ResourceKey[]::new));
-        this.tag(SimpleBBQItemTags.CAN_BE_SEASONED_BY_CHILI_POWDER).add(allRawSkewers.stream().filter(item -> !cannotBeSeasonedByChiliPowder.contains(item)).map(ResourceKeyUtils::getItemResourceKey).toArray(ResourceKey[]::new));
-        this.tag(SimpleBBQItemTags.CAN_BE_SEASONED_BY_CUMIN).add(allRawSkewers.stream().filter(item -> !cannotBeSeasonedByCumin.contains(item)).map(ResourceKeyUtils::getItemResourceKey).toArray(ResourceKey[]::new));
-        this.tag(SimpleBBQItemTags.CAN_BE_SEASONED_BY_SALT_AND_PEPPER).add(allRawSkewers.stream().filter(item -> !cannotBeSeasonedBySaltAndPepper.contains(item)).map(ResourceKeyUtils::getItemResourceKey).toArray(ResourceKey[]::new));
+        this.getOrCreateTagBuilder(SimpleBBQItemTags.CAN_BE_SEASONED_BY_HONEY).add(allRawSkewers.stream().filter(item -> !cannotBeSeasonedByHoney.contains(item)).toArray(Item[]::new));
+        this.getOrCreateTagBuilder(SimpleBBQItemTags.CAN_BE_SEASONED_BY_CHILI_POWDER).add(allRawSkewers.stream().filter(item -> !cannotBeSeasonedByChiliPowder.contains(item)).toArray(Item[]::new));
+        this.getOrCreateTagBuilder(SimpleBBQItemTags.CAN_BE_SEASONED_BY_CUMIN).add(allRawSkewers.stream().filter(item -> !cannotBeSeasonedByCumin.contains(item)).toArray(Item[]::new));
+        this.getOrCreateTagBuilder(SimpleBBQItemTags.CAN_BE_SEASONED_BY_SALT_AND_PEPPER).add(allRawSkewers.stream().filter(item -> !cannotBeSeasonedBySaltAndPepper.contains(item)).toArray(Item[]::new));
 
         addConventionItemTags();
     }
 
     private void addConventionItemTags() {
-        this.tag(SimpleBBQItemTags.WOOD_STICK).add(ResourceKeyUtils.getItemResourceKey(Items.STICK));
+        this.getOrCreateTagBuilder(ConventionItemTags.WOOD_RODS).add(Items.STICK);
     }
 
     @Override

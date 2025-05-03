@@ -5,6 +5,7 @@ import com.sihenzhang.simplebbq.SimpleBBQRegistry;
 import com.sihenzhang.simplebbq.data.recipes.GrillCookingRecipeBuilder;
 import com.sihenzhang.simplebbq.data.recipes.SeasoningRecipeBuilder;
 import com.sihenzhang.simplebbq.data.recipes.SkeweringRecipeBuilder;
+import com.sihenzhang.simplebbq.tag.ConventionItemTags;
 import com.sihenzhang.simplebbq.tag.SimpleBBQItemTags;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
@@ -32,7 +33,7 @@ public class SimpleBBQRecipeProvider extends FabricRecipeProvider {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, SimpleBBQRegistry.GRILL_BLOCK)
                 .define('#', Blocks.IRON_TRAPDOOR)
                 .define('X', ConventionalItemTags.IRON_INGOTS)
-                .define('I', SimpleBBQItemTags.WOOD_STICK)
+                .define('I', ConventionItemTags.WOOD_RODS)
                 .pattern("X#X")
                 .pattern("I I")
                 .pattern("I I")

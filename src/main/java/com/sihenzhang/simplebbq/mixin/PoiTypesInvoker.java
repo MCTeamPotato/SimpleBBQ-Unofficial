@@ -14,11 +14,6 @@ import java.util.Set;
 
 @Mixin(PoiTypes.class)
 public interface PoiTypesInvoker {
-    @Accessor("TYPE_BY_STATE")
-    static Map<BlockState, Holder<PoiType>> simplebbq$getTypeByState() {
-        throw new AssertionError();
-    }
-
     @Invoker("getBlockStates")
     static Set<BlockState> simplebbq$getBlockStates(Block block) {
         throw new AssertionError();

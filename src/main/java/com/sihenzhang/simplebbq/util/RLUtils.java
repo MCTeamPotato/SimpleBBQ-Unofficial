@@ -8,7 +8,7 @@ public final class RLUtils {
     }
 
     public static ResourceLocation createRL(String path) {
-        return new ResourceLocation(SimpleBBQ.MOD_ID, path);
+        return createRL(SimpleBBQ.MOD_ID, path);
     }
 
     public static ResourceLocation createRL(String namespace, String path) {
@@ -16,10 +16,10 @@ public final class RLUtils {
     }
 
     public static ResourceLocation createConventionTagRL(String path) {
-        return new ResourceLocation("c", path);
+        return createRL("c", path);
     }
 
     public static ResourceLocation createVanillaRL(String path) {
-        return new ResourceLocation("minecraft", path);
+        return createRL("minecraft", path);
     }
 }
