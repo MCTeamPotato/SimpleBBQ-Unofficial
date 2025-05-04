@@ -18,8 +18,8 @@ public final class TagUtils {
         return ItemTags.create(RLUtils.createRL(modId, name));
     }
 
-    public static TagKey<Item> createForgeItemTag(String name) {
-        return ItemTags.create(RLUtils.createForgeRL(name));
+    public static TagKey<Item> createConventionItemTag(String name) {
+        return ItemTags.create(RLUtils.createConventionRL(name));
     }
 
     public static TagKey<Item> createVanillaItemTag(String name) {
@@ -34,8 +34,8 @@ public final class TagUtils {
         return BlockTags.create(RLUtils.createRL(modId, name));
     }
 
-    public static TagKey<Block> createForgeBlockTag(String name) {
-        return BlockTags.create(RLUtils.createForgeRL(name));
+    public static TagKey<Block> createConventionBlockTag(String name) {
+        return BlockTags.create(RLUtils.createConventionRL(name));
     }
 
     public static TagKey<Block> createVanillaBlockTag(String name) {

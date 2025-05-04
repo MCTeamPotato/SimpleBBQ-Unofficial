@@ -32,9 +32,12 @@
   "tooltip.simplebbq.seasoning.cumin": "孜然",
   "tooltip.simplebbq.seasoning.honey": "蜂蜜",
   "tooltip.simplebbq.seasoning.salt_and_pepper": "椒盐",
-  "integration.simplebbq.jei.category.grill_cooking": "烧烤",
-  "integration.simplebbq.jei.category.campfire_cooking_on_grill": "烤架上的营火烹饪",
-  "integration.simplebbq.jei.category.seasoning": "调味",
-  "integration.simplebbq.jei.category.skewering": "制串",
-  "integration.simplebbq.jei.description.seasoning": "通过与制串师交易获得。"
+  "recipeViewer.simplebbq.category.grill_cooking": "烧烤",
+  "recipeViewer.simplebbq.category.campfire_cooking_on_grill": "烤架上的营火烹饪",
+  "recipeViewer.simplebbq.category.seasoning": "调味",
+  "recipeViewer.simplebbq.category.skewering": "制串",
+  "recipeViewer.simplebbq.description.seasoning": "通过与制串师交易获得。",
+  "simplebbq.configuration.general": "通用设置",
+  "simplebbq.configuration.campfireCookingOnGrillMinimumCookingTime": "在烤架上用营火烹饪最短烹饪时间",
+  "simplebbq.configuration.campfireCookingOnGrillCookingTimeModifier": "在烤架上用营火烹饪的烹饪时间修改器"
 }
