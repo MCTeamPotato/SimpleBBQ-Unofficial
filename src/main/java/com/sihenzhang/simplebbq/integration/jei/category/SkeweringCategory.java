@@ -1,10 +1,11 @@
-package com.sihenzhang.simplebbq.integration.jei;
+package com.sihenzhang.simplebbq.integration.jei.category;
 
-import com.sihenzhang.simplebbq.SimpleBBQ;
 import com.sihenzhang.simplebbq.SimpleBBQRegistry;
+import com.sihenzhang.simplebbq.integration.jei.SimpleBBQJEIPlugin;
+import com.sihenzhang.simplebbq.integration.jei.SimpleBBQJEIRecipes;
 import com.sihenzhang.simplebbq.recipe.SkeweringRecipe;
 import com.sihenzhang.simplebbq.tag.SimpleBBQItemTags;
-import com.sihenzhang.simplebbq.util.I18nUtils;
+import com.sihenzhang.simplebbq.integration.recipeviewer_common.RecipeViewerHelper;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.helpers.IGuiHelper;
@@ -16,23 +17,20 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.crafting.Ingredient;
 
 public class SkeweringCategory extends BaseCategory<SkeweringRecipe> {
-    public static final RecipeType<SkeweringRecipe> RECIPE_TYPE = RecipeType.create(SimpleBBQ.MOD_ID, "skewering", SkeweringRecipe.class);
-
-
     public SkeweringCategory(IGuiHelper guiHelper) {
-        super(guiHelper.drawableBuilder(ModIntegrationJei.RECIPE_GUI_VANILLA, 0, 168, 125, 18).build()
+        super(guiHelper.drawableBuilder(SimpleBBQJEIPlugin.RECIPE_GUI_VANILLA, 0, 168, 125, 18).build()
         ,guiHelper.createDrawableIngredient(VanillaTypes.ITEM_STACK, SimpleBBQRegistry.SKEWERING_TABLE_BLOCK_ITEM.getDefaultInstance()));
     }
 
 
     @Override
     public RecipeType<SkeweringRecipe> getRecipeType() {
-        return RECIPE_TYPE;
+        return SimpleBBQJEIRecipes.SKEWERING;
     }
 
     @Override
     public Component getTitle() {
-        return I18nUtils.createIntegrationComponent(ModIntegrationJei.MOD_ID, "category.skewering");
+        return RecipeViewerHelper.createRecipeViewerComponent("category.skewering");
     }
 
     @Override

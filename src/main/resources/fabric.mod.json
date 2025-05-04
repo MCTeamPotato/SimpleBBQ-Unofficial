@@ -25,7 +25,13 @@
       "com.sihenzhang.simplebbq.data.DataGen"
     ],
     "jei_mod_plugin": [
-      "com.sihenzhang.simplebbq.integration.jei.ModIntegrationJei"
+      "com.sihenzhang.simplebbq.integration.jei.SimpleBBQJEIPlugin"
+    ],
+    "rei_client": [
+      "com.sihenzhang.simplebbq.integration.rei.SimpleBBQREIClientPlugin"
+    ],
+    "rei_common": [
+      "com.sihenzhang.simplebbq.integration.rei.SimpleBBQREICommonPlugin"
     ]
   },
   "accessWidener" : "simplebbq.accesswidener",

@@ -1,41 +1,32 @@
-package com.sihenzhang.simplebbq.integration.jei;
+package com.sihenzhang.simplebbq.integration.rei;
 
 import com.sihenzhang.simplebbq.integration.recipeviewer_common.AbstractDoubleItemStack;
+import me.shedaniel.math.Rectangle;
+import me.shedaniel.rei.api.client.gui.Renderer;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.item.ItemStack;
-import mezz.jei.api.gui.drawable.IDrawable;
 
-public class DrawableDoubleItemStack extends AbstractDoubleItemStack implements IDrawable {
+public class DoubleItemStackRenderer extends AbstractDoubleItemStack implements Renderer {
 
-    public DrawableDoubleItemStack(ItemStack primary, ItemStack secondary) {
+    public DoubleItemStackRenderer(ItemStack primary, ItemStack secondary) {
         super(primary, secondary);
     }
 
     @Override
-    public int getWidth() {
-        return 18;
-    }
-
-    @Override
-    public int getHeight() {
-        return 18;
-    }
-
-    @Override
-    public void draw(GuiGraphics guiGraphics, int xOffset, int yOffset) {
+    public void render(GuiGraphics guiGraphics, Rectangle bounds, int mouseX, int mouseY, float delta) {
         var primaryStack = primarySupplier.get();
         var secondaryStack = secondarySupplier.get();
-        
+
         if (primaryStack != null && !primaryStack.isEmpty()) {
             guiGraphics.pose().pushPose();
-            guiGraphics.pose().translate(xOffset + 1, yOffset + 1, 0);
+            guiGraphics.pose().translate(bounds.getCenterX() - 8, bounds.getCenterY() - 8, 0);
             renderItemStack(guiGraphics, primaryStack, 0, 0);
             guiGraphics.pose().popPose();
         }
-        
+
         if (secondaryStack != null && !secondaryStack.isEmpty()) {
             guiGraphics.pose().pushPose();
-            guiGraphics.pose().translate(xOffset + 8, yOffset + 8, 100);
+            guiGraphics.pose().translate(bounds.getCenterX() - 1, bounds.getCenterY() - 1, 100);
             guiGraphics.pose().scale(0.6F, 0.6F, 0.6F);
             renderItemStack(guiGraphics, secondaryStack, 0, 0);
             guiGraphics.pose().popPose();

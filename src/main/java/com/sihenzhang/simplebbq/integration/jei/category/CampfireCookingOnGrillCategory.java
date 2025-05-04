@@ -1,35 +1,33 @@
-package com.sihenzhang.simplebbq.integration.jei;
+package com.sihenzhang.simplebbq.integration.jei.category;
 
-import com.sihenzhang.simplebbq.SimpleBBQ;
-import com.sihenzhang.simplebbq.SimpleBBQConfig;
 import com.sihenzhang.simplebbq.SimpleBBQRegistry;
+import com.sihenzhang.simplebbq.integration.jei.DrawableDoubleItemStack;
+import com.sihenzhang.simplebbq.integration.jei.SimpleBBQJEIRecipes;
+import com.sihenzhang.simplebbq.integration.recipeviewer_common.RecipeViewerHelper;
 import mezz.jei.api.gui.drawable.IDrawableAnimated;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.RecipeType;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.util.Mth;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CampfireCookingRecipe;
 
 public class CampfireCookingOnGrillCategory extends AbstractCookingWithoutFuelAndXpCategory<CampfireCookingRecipe> {
-    public static final RecipeType<CampfireCookingRecipe> RECIPE_TYPE = RecipeType.create(SimpleBBQ.MOD_ID, "campfire_cooking_on_grill", CampfireCookingRecipe.class);
-
     public CampfireCookingOnGrillCategory(IGuiHelper guiHelper) {
         super(guiHelper, new DrawableDoubleItemStack(SimpleBBQRegistry.GRILL_BLOCK_ITEM.getDefaultInstance(), Items.CAMPFIRE.getDefaultInstance()), "category.campfire_cooking_on_grill", 400);
     }
 
     @Override
     public RecipeType<CampfireCookingRecipe> getRecipeType() {
-        return RECIPE_TYPE;
+        return SimpleBBQJEIRecipes.CAMPFIRE_COOKING_ON_GRILL;
     }
 
     @Override
     protected IDrawableAnimated getArrow(int cookingTime) {
-        return super.getArrow(Mth.clamp((int) (cookingTime * SimpleBBQConfig.CAMPFIRE_COOKING_ON_GRILL_COOKING_TIME_MODIFIER.get()), Math.min(SimpleBBQConfig.CAMPFIRE_COOKING_ON_GRILL_MINIMUM_COOKING_TIME.get(), cookingTime), cookingTime));
+        return super.getArrow(RecipeViewerHelper.getCampfireCookingOnGrillTime(cookingTime));
     }
 
     @Override
     protected void drawCookingTime(int cookingTime, GuiGraphics stack) {
-        super.drawCookingTime(Mth.clamp((int) (cookingTime * SimpleBBQConfig.CAMPFIRE_COOKING_ON_GRILL_COOKING_TIME_MODIFIER.get()), Math.min(SimpleBBQConfig.CAMPFIRE_COOKING_ON_GRILL_MINIMUM_COOKING_TIME.get(), cookingTime), cookingTime), stack);
+        super.drawCookingTime(RecipeViewerHelper.getCampfireCookingOnGrillTime(cookingTime), stack);
     }
 }

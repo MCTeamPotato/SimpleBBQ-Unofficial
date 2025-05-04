@@ -1,4 +1,4 @@
-package com.sihenzhang.simplebbq.integration.jei;
+package com.sihenzhang.simplebbq.integration.jei.category;
 
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;

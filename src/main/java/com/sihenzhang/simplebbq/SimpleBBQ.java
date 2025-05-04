@@ -3,6 +3,7 @@ package com.sihenzhang.simplebbq;
 import com.sihenzhang.simplebbq.levelgen.VillageStructures;
 import com.sihenzhang.simplebbq.util.RLUtils;
 import fuzs.forgeconfigapiport.fabric.api.neoforge.v4.NeoForgeConfigRegistry;
+import fuzs.forgeconfigapiport.fabric.api.neoforge.v4.client.ConfigScreenFactoryRegistry;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
@@ -16,6 +17,7 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.fml.config.ModConfig;
+import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 
 public class SimpleBBQ implements ModInitializer {
     public static final String MOD_ID = "simplebbq";
@@ -34,6 +36,7 @@ public class SimpleBBQ implements ModInitializer {
     @Override
     public void onInitialize() {
         NeoForgeConfigRegistry.INSTANCE.register(MOD_ID, ModConfig.Type.COMMON, SimpleBBQConfig.COMMON_CONFIG);
+        ConfigScreenFactoryRegistry.INSTANCE.register(MOD_ID, ConfigurationScreen::new);
 
         Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, TAB_KEY, TAB);
 
