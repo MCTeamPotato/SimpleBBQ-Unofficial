@@ -1,11 +1,15 @@
 package com.sihenzhang.simplebbq.recipe;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.gson.JsonObject;
 import com.sihenzhang.simplebbq.SimpleBBQRegistry;
 import com.sihenzhang.simplebbq.util.JsonUtils;
 import net.minecraft.Util;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -20,10 +24,14 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Locale;
 
 public class SeasoningRecipe implements Recipe<Container> {
+    private final LoadingCache<SeasoningRecipe, List<ItemStack>> cachedResultItems;
+
     private final ResourceLocation id;
     private final Ingredient ingredient;
     private final Ingredient seasoning;
@@ -34,6 +42,22 @@ public class SeasoningRecipe implements Recipe<Container> {
         this.ingredient = ingredient;
         this.seasoning = seasoning;
         this.name = name;
+
+        this.cachedResultItems = CacheBuilder.newBuilder().maximumSize(25).build(new CacheLoader<>() {
+            @Override
+            public List<ItemStack> load(SeasoningRecipe key) {
+                return Arrays.stream(key.getIngredient().getItems()).map(stack -> {
+                    var copiedStack = stack.copy();
+                    var seasoningTag = copiedStack.getOrCreateTagElement("Seasoning");
+                    var seasoningList = seasoningTag.getList("SeasoningList", Tag.TAG_STRING);
+                    seasoningList.add(StringTag.valueOf(key.getName().toLowerCase(Locale.ROOT)));
+                    // Sort the seasoning list so that item can be stacked even if the seasoning order is not the same
+                    seasoningList.sort(Comparator.comparing(Tag::getAsString));
+                    seasoningTag.put("SeasoningList", seasoningList);
+                    return copiedStack;
+                }).toList();
+            }
+        });
     }
 
     @Override
@@ -78,6 +102,10 @@ public class SeasoningRecipe implements Recipe<Container> {
 
     public Ingredient getSeasoning() {
         return seasoning;
+    }
+
+    public LoadingCache<SeasoningRecipe, List<ItemStack>> getCachedResultItems() {
+        return cachedResultItems;
     }
 
     public String getName() {

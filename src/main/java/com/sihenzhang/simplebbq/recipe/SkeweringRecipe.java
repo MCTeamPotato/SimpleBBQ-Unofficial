@@ -55,6 +55,14 @@ public class SkeweringRecipe implements Recipe<Container> {
         return Util.make(NonNullList.create(), list -> list.add(ingredient));
     }
 
+    public Ingredient getIngredient() {
+        return ingredient;
+    }
+
+    public ItemStack getResult() {
+        return result;
+    }
+
     public int getCount() {
         return count;
     }
