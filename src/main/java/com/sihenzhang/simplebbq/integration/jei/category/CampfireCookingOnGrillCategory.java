@@ -3,22 +3,39 @@ package com.sihenzhang.simplebbq.integration.jei.category;
 import com.sihenzhang.simplebbq.SimpleBBQRegistry;
 import com.sihenzhang.simplebbq.integration.jei.DrawableDoubleItemStack;
 import com.sihenzhang.simplebbq.integration.jei.SimpleBBQJEIRecipes;
+import com.sihenzhang.simplebbq.integration.jei.simple.AbstractCampfireCookingCategory;
 import com.sihenzhang.simplebbq.integration.recipeviewer_common.RecipeViewerHelper;
+import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.drawable.IDrawableAnimated;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.RecipeType;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CampfireCookingRecipe;
+import org.jetbrains.annotations.NotNull;
 
-public class CampfireCookingOnGrillCategory extends AbstractCookingWithoutFuelAndXpCategory<CampfireCookingRecipe> {
+public class CampfireCookingOnGrillCategory extends AbstractCampfireCookingCategory<CampfireCookingRecipe> {
     public CampfireCookingOnGrillCategory(IGuiHelper guiHelper) {
-        super(guiHelper, new DrawableDoubleItemStack(SimpleBBQRegistry.GRILL_BLOCK_ITEM.getDefaultInstance(), Items.CAMPFIRE.getDefaultInstance()), "category.campfire_cooking_on_grill", 400);
+        super(guiHelper, 400);
     }
 
     @Override
     public RecipeType<CampfireCookingRecipe> getRecipeType() {
         return SimpleBBQJEIRecipes.CAMPFIRE_COOKING_ON_GRILL;
+    }
+
+    @Override
+    public @NotNull Component getTitle() {
+        return RecipeViewerHelper.createRecipeViewerComponent("category.campfire_cooking_on_grill");
+    }
+
+    @Override
+    public IDrawable getIcon() {
+        return new DrawableDoubleItemStack(
+                SimpleBBQRegistry.GRILL_BLOCK_ITEM.getDefaultInstance(),
+                Items.CAMPFIRE.getDefaultInstance()
+        );
     }
 
     @Override

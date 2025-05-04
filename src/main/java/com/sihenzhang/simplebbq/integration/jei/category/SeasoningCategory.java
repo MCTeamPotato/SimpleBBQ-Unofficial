@@ -4,25 +4,26 @@ import com.sihenzhang.simplebbq.SimpleBBQRegistry;
 import com.sihenzhang.simplebbq.integration.jei.DrawableDoubleItemStack;
 import com.sihenzhang.simplebbq.integration.jei.SimpleBBQJEIPlugin;
 import com.sihenzhang.simplebbq.integration.jei.SimpleBBQJEIRecipes;
+import com.sihenzhang.simplebbq.integration.jei.simple.SimpleRecipeCategory;
 import com.sihenzhang.simplebbq.recipe.SeasoningRecipe;
 import com.sihenzhang.simplebbq.integration.recipeviewer_common.RecipeViewerHelper;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
+import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class SeasoningCategory extends BaseCategory<SeasoningRecipe> {
+public class SeasoningCategory extends SimpleRecipeCategory<SeasoningRecipe> {
     public SeasoningCategory(IGuiHelper guiHelper) {
-        super(guiHelper.drawableBuilder(SimpleBBQJEIPlugin.RECIPE_GUI_VANILLA, 0, 168, 125, 18).build()
-        ,new DrawableDoubleItemStack(SimpleBBQRegistry.GRILL_BLOCK_ITEM.getDefaultInstance(), SimpleBBQRegistry.CHILI_POWDER.getDefaultInstance()));
+        super(guiHelper.drawableBuilder(SimpleBBQJEIPlugin.RECIPE_GUI_VANILLA, 0, 168, 125, 18).build());
     }
-
 
     @Override
     public RecipeType<SeasoningRecipe> getRecipeType() {
@@ -32,6 +33,14 @@ public class SeasoningCategory extends BaseCategory<SeasoningRecipe> {
     @Override
     public Component getTitle() {
         return RecipeViewerHelper.createRecipeViewerComponent("category.seasoning");
+    }
+
+    @Override
+    public @Nullable IDrawable getIcon() {
+        return new DrawableDoubleItemStack(
+                SimpleBBQRegistry.GRILL_BLOCK_ITEM.getDefaultInstance(),
+                SimpleBBQRegistry.CHILI_POWDER.getDefaultInstance()
+        );
     }
 
     @Override

@@ -13,7 +13,7 @@ public class SimpleBBQJEIRecipes {
     public static final RecipeType<GrillCookingRecipe> GRILL_COOKING = createRecipeType("grill_cooking", GrillCookingRecipe.class);
     public static final RecipeType<CampfireCookingRecipe> CAMPFIRE_COOKING_ON_GRILL = createRecipeType("campfire_cooking_on_grill", CampfireCookingRecipe.class);
 
-    protected static <T> RecipeType<T> createRecipeType( String path, Class<? extends T> recipeClass) {
+    protected static <T> RecipeType<T> createRecipeType(String path, Class<? extends T> recipeClass) {
         return new RecipeType<>(RLUtils.createRL(path), recipeClass);
     }
 }
