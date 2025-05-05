@@ -2,8 +2,15 @@ package com.sihenzhang.simplebbq.integration.jei;
 
 import com.sihenzhang.simplebbq.SimpleBBQ;
 import com.sihenzhang.simplebbq.SimpleBBQRegistry;
-import com.sihenzhang.simplebbq.util.I18nUtils;
+import com.sihenzhang.simplebbq.integration.jei.category.CampfireCookingOnGrillCategory;
+import com.sihenzhang.simplebbq.integration.jei.category.GrillCookingCategory;
+import com.sihenzhang.simplebbq.integration.jei.category.SeasoningCategory;
+import com.sihenzhang.simplebbq.integration.jei.category.SkeweringCategory;
+import com.sihenzhang.simplebbq.recipe.GrillCookingRecipe;
+import com.sihenzhang.simplebbq.recipe.SeasoningRecipe;
+import com.sihenzhang.simplebbq.recipe.SkeweringRecipe;
 import com.sihenzhang.simplebbq.util.RLUtils;
+import com.sihenzhang.simplebbq.integration.recipeviewer_common.RecipeViewerHelper;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.VanillaTypes;
@@ -12,12 +19,13 @@ import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.crafting.CampfireCookingRecipe;
 import net.minecraft.world.item.crafting.RecipeType;
 
 import java.util.List;
 
 @JeiPlugin
-public class ModIntegrationJei implements IModPlugin {
+public class SimpleBBQJEIPlugin implements IModPlugin {
     public static final String MOD_ID = "jei";
     public static final ResourceLocation RECIPE_GUI_VANILLA = RLUtils.createRL(SimpleBBQ.MOD_ID, "textures/gui/gui_vanilla.png");
 
@@ -38,10 +46,14 @@ public class ModIntegrationJei implements IModPlugin {
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
         var recipeManager = Minecraft.getInstance().level.getRecipeManager();
-        registration.addRecipes(GrillCookingCategory.RECIPE_TYPE, recipeManager.getAllRecipesFor(SimpleBBQRegistry.GRILL_COOKING_RECIPE_TYPE.get()));
-        registration.addRecipes(CampfireCookingOnGrillCategory.RECIPE_TYPE, recipeManager.getAllRecipesFor(RecipeType.CAMPFIRE_COOKING));
-        registration.addRecipes(SeasoningCategory.RECIPE_TYPE, recipeManager.getAllRecipesFor(SimpleBBQRegistry.SEASONING_RECIPE_TYPE.get()));
-        registration.addRecipes(SkeweringCategory.RECIPE_TYPE, recipeManager.getAllRecipesFor(SimpleBBQRegistry.SKEWERING_RECIPE_TYPE.get()));
+        List<GrillCookingRecipe> boilingPotRecipes = recipeManager.getAllRecipesFor(SimpleBBQRegistry.GRILL_COOKING_RECIPE_TYPE.get());
+        registration.addRecipes(SimpleBBQJEIRecipes.GRILL_COOKING, boilingPotRecipes);
+        List<CampfireCookingRecipe> campfireCookingRecipes = recipeManager.getAllRecipesFor(RecipeType.CAMPFIRE_COOKING);
+        registration.addRecipes(SimpleBBQJEIRecipes.CAMPFIRE_COOKING_ON_GRILL, campfireCookingRecipes);
+        List<SeasoningRecipe> seasoningRecipes = recipeManager.getAllRecipesFor(SimpleBBQRegistry.SEASONING_RECIPE_TYPE.get());
+        registration.addRecipes(SimpleBBQJEIRecipes.SEASONING, seasoningRecipes);
+        List<SkeweringRecipe> skeweringRecipes = recipeManager.getAllRecipesFor(SimpleBBQRegistry.SKEWERING_RECIPE_TYPE.get());
+        registration.addRecipes(SimpleBBQJEIRecipes.SKEWERING, skeweringRecipes);
 
         registration.addIngredientInfo(
                 List.of(
@@ -50,13 +62,13 @@ public class ModIntegrationJei implements IModPlugin {
                         SimpleBBQRegistry.SALT_AND_PEPPER.get().getDefaultInstance()
                 ),
                 VanillaTypes.ITEM_STACK,
-                I18nUtils.createIntegrationComponent(MOD_ID, "description.seasoning")
+                RecipeViewerHelper.createRecipeViewerComponent("description.seasoning")
         );
     }
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(SimpleBBQRegistry.GRILL_BLOCK_ITEM.get().getDefaultInstance(), GrillCookingCategory.RECIPE_TYPE, CampfireCookingOnGrillCategory.RECIPE_TYPE, SeasoningCategory.RECIPE_TYPE);
-        registration.addRecipeCatalyst(SimpleBBQRegistry.SKEWERING_TABLE_BLOCK_ITEM.get().getDefaultInstance(), SkeweringCategory.RECIPE_TYPE);
+        registration.addRecipeCatalyst(SimpleBBQRegistry.GRILL_BLOCK_ITEM.get().getDefaultInstance(), SimpleBBQJEIRecipes.GRILL_COOKING, SimpleBBQJEIRecipes.CAMPFIRE_COOKING_ON_GRILL, SimpleBBQJEIRecipes.SEASONING);
+        registration.addRecipeCatalyst(SimpleBBQRegistry.SKEWERING_TABLE_BLOCK_ITEM.get().getDefaultInstance(), SimpleBBQJEIRecipes.SKEWERING);
     }
 }
