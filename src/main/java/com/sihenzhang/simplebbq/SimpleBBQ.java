@@ -9,14 +9,16 @@ import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.config.ModConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SimpleBBQ implements ModInitializer {
     public static final String MOD_ID = "simplebbq";
+    public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
     public static final CreativeModeTab TAB = FabricItemGroup.builder()
             .title(Component.translatable("itemGroup." + MOD_ID))
@@ -33,7 +35,11 @@ public class SimpleBBQ implements ModInitializer {
 
         SimpleBBQRegistry.initialize();
         SimpleBBQVillagers.initialize();
-        SimpleBBQEvents.initialize();
+        //SimpleBBQEvents.initialize();
+        SimpleBBQEvents.onBlockRightClick();
+        SimpleBBQEvents.addVillagerTrades();
+        SimpleBBQEvents.onItemUseStart();
+        SimpleBBQEvents.onItemUseFinish();
 
         VillageStructures.addNewVillageBuilding();
 

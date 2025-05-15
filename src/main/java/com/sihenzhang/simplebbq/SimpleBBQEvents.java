@@ -6,6 +6,7 @@ import com.sihenzhang.simplebbq.tag.SimpleBBQItemTags;
 import com.sihenzhang.simplebbq.thirdparty.event.LivingEntityUseItemEvents;
 import com.sihenzhang.simplebbq.util.ModUtils;
 import com.sihenzhang.simplebbq.util.VillagerTradeUtils;
+import net.fabricmc.fabric.api.entity.FakePlayer;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.object.builder.v1.trade.TradeOfferHelper;
 import net.minecraft.nbt.Tag;
@@ -16,10 +17,10 @@ import net.minecraft.world.item.Items;
 
 public class SimpleBBQEvents {
     public static void initialize() {
+        onBlockRightClick();
         addVillagerTrades();
         onItemUseStart();
         onItemUseFinish();
-        onBlockRightClick();
     }
 
     public static void addVillagerTrades() {
@@ -77,7 +78,7 @@ public class SimpleBBQEvents {
                 if (ModUtils.hasSeasoning(seasoningList, "honey")) {
                     entity.heal(2.0F);
                 }
-                if (entity instanceof Player player/* && !(player instanceof FakePlayer)*/) {
+                if (entity instanceof Player player && !(player instanceof FakePlayer)) {
                     var foodProperties = item.getItem().getFoodProperties();
                     if (foodProperties != null) {
                         var foodData = player.getFoodData();
@@ -105,8 +106,10 @@ public class SimpleBBQEvents {
             var pos = blockHitResult.getBlockPos();
             if (level.getBlockState(pos).getBlock() instanceof SkeweringTableBlock) {
                 if (level.getBlockEntity(pos) instanceof SkeweringTableBlockEntity skeweringTableBlockEntity) {
-                    var stackInHand = player.getItemInHand(interactionHand);
+                    SimpleBBQ.LOGGER.warn("RightClick Block");
+                    var stackInHand = player.getItemInHand(interactionHand).copy();
                     if (stackInHand.is(SimpleBBQItemTags.SKEWER)) {
+                        SimpleBBQ.LOGGER.warn("Use Skewer RightClick Block");
                         if (!level.isClientSide() && skeweringTableBlockEntity.skewer(player.getAbilities().instabuild ? stackInHand.copy() : stackInHand, player)) {
                             return InteractionResult.SUCCESS;
                         } else {

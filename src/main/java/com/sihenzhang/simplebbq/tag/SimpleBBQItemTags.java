@@ -5,8 +5,6 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 
 public final class SimpleBBQItemTags {
-    public static final TagKey<Item> WOOD_STICK = TagUtils.createConventionItemTag("wooden_rods");
-
     public static final TagKey<Item> SKEWER = TagUtils.createItemTag("skewer");
     public static final TagKey<Item> SEASONING = TagUtils.createItemTag("seasoning");
 
