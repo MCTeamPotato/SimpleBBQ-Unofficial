@@ -29,7 +29,7 @@ public class SimpleBBQ implements ModInitializer {
             .icon(() -> new ItemStack(SimpleBBQRegistry.GRILL_BLOCK_ITEM))
             .displayItems((parameters, output) -> {
                 // TODO: 还没添加完，还有那个lang文件也没添加⬆️，还有许多地方的.tab()没修改 [SimpleBBQRegistry]
-                SimpleBBQRegistry.ITEMS.values().forEach(item -> output.accept(item));
+                SimpleBBQRegistry.ITEMS.values().forEach(output::accept);
             })
             .build();
 
