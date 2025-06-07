@@ -11,16 +11,21 @@ import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.object.builder.v1.trade.TradeOfferHelper;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
 
 public class SimpleBBQEvents {
     public static void initialize() {
-        onBlockRightClick();
+        LivingEntityUseItemEvents.START.register(SimpleBBQEvents::onItemUseStart);
+        LivingEntityUseItemEvents.FINISH.register(SimpleBBQEvents::onItemUseFinish);
+        UseBlockCallback.EVENT.register(SimpleBBQEvents::onBlockRightClick);
         addVillagerTrades();
-        onItemUseStart();
-        onItemUseFinish();
     }
 
     public static void addVillagerTrades() {
@@ -57,68 +62,60 @@ public class SimpleBBQEvents {
         });
     }
 
-    public static void onItemUseStart() {
-        LivingEntityUseItemEvents.START.register((entity, item, duration) -> {
-            var seasoningTag = item.getTagElement("Seasoning");
-            if (seasoningTag != null && seasoningTag.getBoolean("HasEffect") && seasoningTag.contains("SeasoningList", Tag.TAG_LIST)) {
-                var seasoningList = seasoningTag.getList("SeasoningList", Tag.TAG_STRING);
-                if (ModUtils.hasSeasoning(seasoningList, "chili_powder")) {
-                    return Math.max(duration - 4, 1);
-                }
+    public static int onItemUseStart(LivingEntity entity, ItemStack item, int duration) {
+        var seasoningTag = item.getTagElement("Seasoning");
+        if (seasoningTag != null && seasoningTag.getBoolean("HasEffect") && seasoningTag.contains("SeasoningList", Tag.TAG_LIST)) {
+            var seasoningList = seasoningTag.getList("SeasoningList", Tag.TAG_STRING);
+            if (ModUtils.hasSeasoning(seasoningList, "chili_powder")) {
+                return Math.max(duration - 4, 1);
             }
-            return duration;
-        });
+        }
+        return duration;
     }
 
-    public static void onItemUseFinish() {
-        LivingEntityUseItemEvents.FINISH.register((entity, item, duration, result) -> {
-            var seasoningTag = item.getTagElement("Seasoning");
-            if (seasoningTag != null && seasoningTag.getBoolean("HasEffect") && seasoningTag.contains("SeasoningList", Tag.TAG_LIST)) {
-                var seasoningList = seasoningTag.getList("SeasoningList", Tag.TAG_STRING);
-                if (ModUtils.hasSeasoning(seasoningList, "honey")) {
-                    entity.heal(2.0F);
+    public static ItemStack onItemUseFinish(LivingEntity entity, ItemStack item, int duration, ItemStack result) {
+        var seasoningTag = item.getTagElement("Seasoning");
+        if (seasoningTag != null && seasoningTag.getBoolean("HasEffect") && seasoningTag.contains("SeasoningList", Tag.TAG_LIST)) {
+            var seasoningList = seasoningTag.getList("SeasoningList", Tag.TAG_STRING);
+            if (ModUtils.hasSeasoning(seasoningList, "honey")) {
+                entity.heal(2.0F);
+            }
+            if (entity instanceof Player player && !(player instanceof FakePlayer)) {
+                var foodProperties = item.getItem().getFoodProperties();
+                if (foodProperties != null) {
+                    var foodData = player.getFoodData();
+                    var baseNutrition = foodProperties.getNutrition();
+                    var baseSaturationModifier = foodProperties.getSaturationModifier();
+                    var additionalNutrition = 0;
+                    var additionalSaturationModifier = 0.0F;
+                    if (ModUtils.hasSeasoning(seasoningList, "salt_and_pepper")) {
+                        additionalNutrition += 1;
+                    }
+                    if (ModUtils.hasSeasoning(seasoningList, "cumin")) {
+                        additionalSaturationModifier += 0.1F;
+                    }
+                    foodData.setFoodLevel(Mth.clamp(foodData.getFoodLevel() + additionalNutrition, 0, 20));
+                    foodData.setSaturation(Math.min(foodData.getSaturationLevel() + baseNutrition * additionalSaturationModifier * 2.0F + additionalNutrition * (baseSaturationModifier + additionalSaturationModifier) * 2.0F, (float) foodData.getFoodLevel()));
                 }
-                if (entity instanceof Player player && !(player instanceof FakePlayer)) {
-                    var foodProperties = item.getItem().getFoodProperties();
-                    if (foodProperties != null) {
-                        var foodData = player.getFoodData();
-                        var baseNutrition = foodProperties.getNutrition();
-                        var baseSaturationModifier = foodProperties.getSaturationModifier();
-                        var additionalNutrition = 0;
-                        var additionalSaturationModifier = 0.0F;
-                        if (ModUtils.hasSeasoning(seasoningList, "salt_and_pepper")) {
-                            additionalNutrition += 1;
-                        }
-                        if (ModUtils.hasSeasoning(seasoningList, "cumin")) {
-                            additionalSaturationModifier += 0.1F;
-                        }
-                        foodData.setFoodLevel(Mth.clamp(foodData.getFoodLevel() + additionalNutrition, 0, 20));
-                        foodData.setSaturation(Math.min(foodData.getSaturationLevel() + baseNutrition * additionalSaturationModifier * 2.0F + additionalNutrition * (baseSaturationModifier + additionalSaturationModifier) * 2.0F, (float) foodData.getFoodLevel()));
+            }
+        }
+        return result;
+    }
+
+    public static InteractionResult onBlockRightClick(Player player, Level level, InteractionHand hand, BlockHitResult hitResult) {
+        var pos = hitResult.getBlockPos();
+        if (level.getBlockState(pos).getBlock() instanceof SkeweringTableBlock) {
+            if (level.getBlockEntity(pos) instanceof SkeweringTableBlockEntity skeweringTableBlockEntity) {
+                var stackInHand = player.getItemInHand(hand);
+                if (stackInHand.is(SimpleBBQItemTags.SKEWER)) {
+                    if (!level.isClientSide() && skeweringTableBlockEntity.skewer(player.getAbilities().instabuild ? stackInHand.copy() : stackInHand, player)) {
+                        return InteractionResult.SUCCESS;
+                    } else {
+                        return InteractionResult.CONSUME;
                     }
                 }
             }
-            return result;
-        });
-    }
-
-    public static void onBlockRightClick() {
-        UseBlockCallback.EVENT.register((player, level, interactionHand, blockHitResult) -> {
-            var pos = blockHitResult.getBlockPos();
-            if (level.getBlockState(pos).getBlock() instanceof SkeweringTableBlock) {
-                if (level.getBlockEntity(pos) instanceof SkeweringTableBlockEntity skeweringTableBlockEntity) {
-                    SimpleBBQ.LOGGER.warn("RightClick Block");
-                    var stackInHand = player.getItemInHand(interactionHand).copy();
-                    if (stackInHand.is(SimpleBBQItemTags.SKEWER)) {
-                        SimpleBBQ.LOGGER.warn("Use Skewer RightClick Block");
-                        if (!level.isClientSide() && skeweringTableBlockEntity.skewer(player.getAbilities().instabuild ? stackInHand.copy() : stackInHand, player)) {
-                            return InteractionResult.SUCCESS;
-                        } else {
-                            return InteractionResult.CONSUME;
-                        }
-                    }
-                }
-            }
-            return InteractionResult.PASS;
-        });
+        }
+        return InteractionResult.PASS;
     }
 }

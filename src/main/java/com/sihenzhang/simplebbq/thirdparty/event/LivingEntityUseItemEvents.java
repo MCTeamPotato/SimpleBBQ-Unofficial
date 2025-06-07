@@ -15,21 +15,6 @@ public class LivingEntityUseItemEvents {
         return duration;
     });
 
-    public static final Event<Tick> TICK = EventFactory.createArrayBacked(Tick.class, (callbacks) -> (entity, item, duration) -> {
-        for (Tick callback : callbacks) {
-            int newDuration = callback.onTick(entity, item, duration);
-            if (newDuration != duration) return newDuration;
-        }
-        return duration;
-    });
-
-    public static final Event<Stop> STOP = EventFactory.createArrayBacked(Stop.class, (callbacks) -> (entity, item, duration) -> {
-        for (Stop callback : callbacks) {
-            return callback.onStop(entity, item, duration);
-        }
-        return false;
-    });
-
     public static final Event<Finish> FINISH = EventFactory.createArrayBacked(Finish.class, (callbacks) -> (entity, item, duration, result) -> {
         for (Finish callback : callbacks) {
             ItemStack itemStack = callback.onFinish(entity, item, duration, result);
@@ -41,16 +26,6 @@ public class LivingEntityUseItemEvents {
     @FunctionalInterface
     public interface Start {
         int onStart(LivingEntity entity, ItemStack item, int duration);
-    }
-
-    @FunctionalInterface
-    public interface Tick {
-        int onTick(LivingEntity entity, ItemStack item, int duration);
-    }
-
-    @FunctionalInterface
-    public interface Stop {
-        boolean onStop(LivingEntity entity, ItemStack item, int duration);
     }
 
     @FunctionalInterface

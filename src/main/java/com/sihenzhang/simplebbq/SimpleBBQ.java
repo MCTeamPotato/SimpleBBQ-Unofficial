@@ -35,11 +35,7 @@ public class SimpleBBQ implements ModInitializer {
 
         SimpleBBQRegistry.initialize();
         SimpleBBQVillagers.initialize();
-        //SimpleBBQEvents.initialize();
-        SimpleBBQEvents.onBlockRightClick();
-        SimpleBBQEvents.addVillagerTrades();
-        SimpleBBQEvents.onItemUseStart();
-        SimpleBBQEvents.onItemUseFinish();
+        SimpleBBQEvents.initialize();
 
         VillageStructures.addNewVillageBuilding();
 
